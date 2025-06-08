@@ -186,7 +186,7 @@ uint32_t dstip;
 static uint8_t dstmac[ETH_ALEN];
 
 static char* payload_suffix = NULL;
-static size_t payload_suffix_size = 4;
+static const size_t payload_suffix_size = 4;
 
 /* If there were any libnet write failures, we return error. */
 static size_t libnet_write_failures = 0;
