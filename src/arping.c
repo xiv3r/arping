@@ -188,6 +188,14 @@ static uint8_t dstmac[ETH_ALEN];
 static char* payload_suffix = NULL;
 static const size_t payload_suffix_size = 4;
 
+// Must be at least big enough to capture an entire packet.
+// Longest possible:
+//   MAC: 802.1q(16) + IPv4(20) + ICMPv4(4) + timespec(18?) + 4 = 62.
+//   IP: 802.1q(16) + ARP(8) + 2xaddr_pair = 44.
+// 100 is enough.
+static const size_t pcap_snaplen = 100;
+static const size_t pcap_timeout_ms = 10;
+
 /* If there were any libnet write failures, we return error. */
 static size_t libnet_write_failures = 0;
 
@@ -1656,13 +1664,17 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
         assert(packet);
 
 	if(verbose>2) {
-		printf("arping: received response for mac ping\n");
+                printf("arping: received response for mac ping len=%d caplen=%d\n",
+                       h->len, h->caplen);
 	}
 
         getclock(&arrival);
 
         if (vlan_tag >= 0) {
-                if (h->caplen < LIBNET_ETH_H + LIBNET_IPV4_H + LIBNET_ICMPV4_H) {
+                if (h->caplen < LIBNET_802_1Q_H + LIBNET_IPV4_H
+                                + LIBNET_ICMPV4_H
+                                + sizeof(struct timespec)
+                                + payload_suffix_size) {
                         return;
                 }
                 veth = (void*)packet;
@@ -1671,7 +1683,10 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
                 pkt_srcmac = veth->vlan_shost;
                 pkt_dstmac = veth->vlan_dhost;
         } else {
-                if (h->caplen < LIBNET_ETH_H + LIBNET_ARP_H + LIBNET_ICMPV4_H) {
+                if (h->caplen < LIBNET_ETH_H + LIBNET_IPV4_H
+                                + LIBNET_ICMPV4_H
+                                + sizeof(struct timespec)
+                                + payload_suffix_size) {
                         return;
                 }
                 heth = (void*)packet;
@@ -2473,7 +2488,8 @@ arping_main(int argc, char **argv)
 	/*
 	 * pcap init
 	 */
-        if (!(pcap = do_pcap_open_live(ifname, 100, 10, ebuf))) {
+        if (!(pcap = do_pcap_open_live(ifname, pcap_snaplen,
+                                       pcap_timeout_ms, ebuf))) {
                 strip_newline(ebuf);
                 fprintf(stderr, "arping: pcap_open_live(): %s\n", ebuf);
 		exit(1);
