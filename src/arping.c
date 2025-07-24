@@ -1755,10 +1755,10 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
 
         const char* payload = (char*)hicmp + LIBNET_ICMPV4_ECHO_H;
         const size_t tmp = cast_ssize_size(payload - (char*)packet, NULL);
-        if (h->len < tmp) {
+        if (h->caplen < tmp) {
                 return;
         }
-        const size_t payload_size = h->len - tmp;
+        const size_t payload_size = h->caplen - tmp;
         if (payload_size < sizeof(struct timespec) + payload_suffix_size) {
                 return;
         }
