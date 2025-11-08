@@ -56,7 +56,9 @@ win32/libnet.h \
 sys/random.h \
 net/bpf.h \
 pwd.h \
-unistd.h])
+unistd.h \
+linux/landlock.h \
+sys/syscall.h])
 
 # Checks for libraries.
 AC_CHECK_LIB([m], [sqrt])
@@ -114,6 +116,24 @@ AC_LINK_IFELSE(
   [
    AC_MSG_RESULT(yes)
    AC_DEFINE([ACTUALLY_HAS_GETRANDOM], [1], [Actually has getrandom()])
+  ],
+  [AC_MSG_RESULT(no)]
+)
+
+AC_MSG_CHECKING([if system has landlock])
+AC_LINK_IFELSE(
+  [AC_LANG_PROGRAM(
+    [
+     #define _GNU_SOURCE
+     #include<linux/landlock.h>
+     #include<sys/syscall.h>
+     #include<unistd.h>
+    ],
+    [syscall(SYS_landlock_create_ruleset, 0, 0, 0);]
+  )],
+  [
+   AC_MSG_RESULT(yes)
+   AC_DEFINE([HAS_LANDLOCK], [1], [Has landlock])
   ],
   [AC_MSG_RESULT(no)]
 )
