@@ -44,7 +44,6 @@
 #include <limits.h>
 #include <math.h>
 #include <poll.h>
-#include <dirent.h>
 
 #if HAVE_UNISTD_H
 #include <unistd.h>
@@ -125,14 +124,6 @@
 #include <net/bpf.h>
 #endif
 #include <pcap.h>
-
-#if HAVE_LINUX_LANDLOCK_H
-#if HAS_LANDLOCK
-#include<linux/landlock.h>
-#include<sys/syscall.h>
-#define ACTUALLY_USE_LANDLOCK 1
-#endif
-#endif
 
 #include "arping.h"
 #include "cast.h"
@@ -258,17 +249,7 @@ int verbose = 0;  /* Increase with -v */
 /* Doesn't really need to be volatile, but doesn't hurt. */
 static volatile sig_atomic_t time_to_die = 0;
 
-#ifdef ACTUALLY_USE_LANDLOCK
-static int ll_create_ruleset(const struct landlock_ruleset_attr *attr, size_t size, __u32 flags) {
-    return syscall(SYS_landlock_create_ruleset, attr, size, flags);
-}
-static int ll_add_rule(int ruleset_fd, enum landlock_rule_type type, const void *rule_attr, __u32 flags) {
-    return syscall(SYS_landlock_add_rule, ruleset_fd, type, rule_attr, flags);
-}
-static int ll_restrict_self(int ruleset_fd, __u32 flags) {
-    return syscall(SYS_landlock_restrict_self, ruleset_fd, flags);
-}
-#endif
+static void drop_landlock();
 
 static float
 must_parse_float(const char* in, const char* what)
@@ -589,70 +570,6 @@ must_get_group(const char* ident)
                         ident);
         }
         exit(1);
-}
-
-static void
-drop_landlock()
-{
-#ifdef ACTUALLY_USE_LANDLOCK
-        struct landlock_ruleset_attr ruleset_attr = {
-                .handled_access_fs = 0
-                        | LANDLOCK_ACCESS_FS_WRITE_FILE
-                        | LANDLOCK_ACCESS_FS_READ_FILE
-                        | LANDLOCK_ACCESS_FS_READ_DIR
-                        | LANDLOCK_ACCESS_FS_REMOVE_DIR
-                        | LANDLOCK_ACCESS_FS_REMOVE_FILE
-                        | LANDLOCK_ACCESS_FS_MAKE_CHAR
-                        | LANDLOCK_ACCESS_FS_MAKE_DIR
-                        | LANDLOCK_ACCESS_FS_MAKE_REG
-                        | LANDLOCK_ACCESS_FS_MAKE_SOCK
-                        | LANDLOCK_ACCESS_FS_MAKE_FIFO
-                        | LANDLOCK_ACCESS_FS_REFER
-                        | LANDLOCK_ACCESS_FS_MAKE_BLOCK
-                        | LANDLOCK_ACCESS_FS_MAKE_SYM
-#ifdef LANDLOCK_ACCESS_FS_TRUNCATE
-                        | LANDLOCK_ACCESS_FS_TRUNCATE
-#endif
-#ifdef LANDLOCK_ACCESS_FS_IOCTL_DEV
-                        | LANDLOCK_ACCESS_FS_IOCTL_DEV
-#endif
-                        | LANDLOCK_ACCESS_FS_EXECUTE,
-#ifdef LANDLOCK_ACCESS_NET_BIND_TCP
-                .handled_access_net =
-                        LANDLOCK_ACCESS_NET_BIND_TCP
-                        | LANDLOCK_ACCESS_NET_CONNECT_TCP,
-#endif
-#ifdef LANDLOCK_SCOPE_ABSTRACT_UNIX_SOCKET
-                .scoped =
-                        LANDLOCK_SCOPE_ABSTRACT_UNIX_SOCKET
-                        | LANDLOCK_SCOPE_SIGNAL,
-#endif
-        };
-        int ruleset = ll_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
-        if (ruleset < 0) {
-                fprintf(stderr, "arping: Failed to create landlock ruleset: %s",
-                        strerror(errno));
-                return;
-        }
-        if (ll_restrict_self(ruleset, 0)) {
-                fprintf(stderr, "arping: Failed to restrict with landlock: %s",
-                        strerror(errno));
-                close(ruleset);
-                return;
-        }
-        close(ruleset);
-        DIR *de = opendir("/");
-        if (de) {
-                fprintf(stderr, "arping: landlock failed to take effect\n");
-                closedir(de);
-        } else if (errno != EACCES) {
-                fprintf(stderr, "arping: landlock caused error not EACCES: \n",
-                        strerror(errno));
-        }
-        if (verbose > 0) {
-                printf("arping: Landlock enabled\n");
-        }
-#endif
 }
 
 /**
