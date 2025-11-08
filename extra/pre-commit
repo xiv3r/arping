@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
-set -e
-make
+set -ueo pipefail
+
+ARPING_TEMPDIR="$(mktemp -d /tmp/arping-test-XXXXXX)"
+echo "Set up tempdir ${ARPING_TEMPDIR}"
+git archive HEAD | tar -x -C "${ARPING_TEMPDIR}"
+git diff --cached --binary | (
+        cd "${ARPING_TEMPDIR}"
+        git apply
+)
+cd "${ARPING_TEMPDIR}"
+
+./bootstrap.sh
+./configure
+make -j$(nproc)
 make check
 make distcheck
 sudo ./tests/run
