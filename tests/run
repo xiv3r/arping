@@ -187,9 +187,24 @@ run_tests() {
     # TODO: -Z
 }
 
+workdir() {
+        ARPING_TEMPDIR="$(mktemp -d arping-test-XXXXXX)"
+        echo "Set up tempdir ${ARPING_TEMPDIR}"
+        git archive HEAD | tar -x -C "${ARPING_TEMPDIR}"
+        git diff --cached --binary | (
+                cd "${ARPING_TEMPDIR}"
+                git apply
+        )
+        cd "${ARPING_TEMPDIR}"
+        ./bootstrap.sh
+        ./configure
+        make -j$(nproc)
+}
+
 main() {
     cd "$(dirname $0)/.."
     SLEEP="${1:-0.1}"
+    workdir
     cleanup
     run_tests
 
