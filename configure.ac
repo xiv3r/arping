@@ -138,6 +138,23 @@ AC_LINK_IFELSE(
   [AC_MSG_RESULT(no)]
 )
 
+AC_MSG_CHECKING([if NO_NEW_PRIVS exists])
+AC_LINK_IFELSE(
+  [AC_LANG_PROGRAM(
+    [
+     #define _GNU_SOURCE
+     #include<linux/prctl.h>
+     #include<sys/prctl.h>
+    ],
+    [prctl(PR_SET_NO_NEW_PRIVS, 1L, 0L, 0L, 0L);]
+  )],
+  [
+   AC_MSG_RESULT(yes)
+   AC_DEFINE([HAS_NO_NEW_PRIVS], [1], [Has NO_NEW_PRIVS])
+  ],
+  [AC_MSG_RESULT(no)]
+)
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_HEADER_TIME

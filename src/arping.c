@@ -249,7 +249,8 @@ int verbose = 0;  /* Increase with -v */
 /* Doesn't really need to be volatile, but doesn't hurt. */
 static volatile sig_atomic_t time_to_die = 0;
 
-static void drop_landlock();
+void drop_landlock();
+void drop_no_new_privs();
 
 static float
 must_parse_float(const char* in, const char* what)
@@ -608,6 +609,7 @@ drop_privileges(const char* drop_group)
         }
         drop_fs_root();
         drop_landlock();
+        drop_no_new_privs();
         drop_uid(uid, gid);
         drop_capabilities();
 #ifdef HAVE_UNVEIL
