@@ -64,7 +64,9 @@ drop_landlock()
                         | LANDLOCK_ACCESS_FS_MAKE_REG
                         | LANDLOCK_ACCESS_FS_MAKE_SOCK
                         | LANDLOCK_ACCESS_FS_MAKE_FIFO
+#ifdef LANDLOCK_ACCESS_FS_REFER
                         | LANDLOCK_ACCESS_FS_REFER
+#endif
                         | LANDLOCK_ACCESS_FS_MAKE_BLOCK
                         | LANDLOCK_ACCESS_FS_MAKE_SYM
 #ifdef LANDLOCK_ACCESS_FS_TRUNCATE
