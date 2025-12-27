@@ -1,0 +1,37 @@
+name: OpenBSD
+
+on:
+  push:
+    branches: [ "arping-2.x", "ci" ]
+  pull_request:
+    branches: [ "arping-2.x" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Build on OpenBSD
+    steps:
+    - uses: actions/checkout@v4
+    - name: Test in OpenBSD
+      id: test
+      uses: vmactions/openbsd-vm@v1
+      with:
+        usesh: true
+        prepare: |
+          pkg_info -Q autoconf | sort -V | tail -1 | xargs pkg_add -v
+          pkg_info -Q libnet | sort -V | tail -1 | xargs pkg_add -v
+          pkg_info -Q automake | sort -V | tail -1 | xargs pkg_add -v
+
+        run: |
+          tree /home/runner/work
+          pwd
+          ls -lah
+          whoami
+          env
+          sysctl hw.model
+          sysctl hw.ncpu
+          sysctl hw.physmem
+          sysctl hw.usermem
+          ./bootstrap.sh
+          ./configure LDFLAGS=-L/usr/local/lib CPPFLAGS=-I/usr/local/include/libnet-1.1
+          make
