@@ -24,8 +24,12 @@
 #include <string.h>
 #include <errno.h>
 
+#if HAVE_LINUX_PRCTL_H
 #include <linux/prctl.h>  /* Definition of PR_* constants */
+#endif
+#if HAVE_SYS_PRCTL_H
 #include <sys/prctl.h>
+#endif
 
 #include "arping.h"
 

@@ -58,6 +58,8 @@ net/bpf.h \
 pwd.h \
 unistd.h \
 linux/landlock.h \
+linux/prctl.h \
+sys/prctl.h \
 sys/syscall.h])
 
 # Checks for libraries.
