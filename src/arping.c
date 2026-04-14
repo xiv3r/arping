@@ -1495,7 +1495,7 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
                 memcpy(&veth, (void*)packet, LIBNET_802_1Q_H);
                 memcpy(pkt_srcmac, veth.vlan_shost, ETH_ALEN);
 
-                if (veth.vlan_tpi != htons(0x8100)) {
+                if (veth.vlan_tpi != ntohs(0x8100)) {
                         return;
                 }
                 if (verbose > 3) {
@@ -1547,7 +1547,7 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
         }
 
         // ARP reply.
-        if (htons(harp.ar_op) != ARPOP_REPLY) {
+        if (ntohs(harp.ar_op) != ARPOP_REPLY) {
                 return;
         }
         if (verbose > 3) {
@@ -1555,7 +1555,7 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
         }
 
         // From IPv4 address reply.
-        if (htons(harp.ar_pro) != ETHERTYPE_IP) {
+        if (ntohs(harp.ar_pro) != ETHERTYPE_IP) {
                 return;
         }
         if (verbose > 3) {
@@ -1563,7 +1563,7 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
         }
 
         // To Ethernet address.
-        if (htons(harp.ar_hrd) != ARPHRD_ETHER) {
+        if (ntohs(harp.ar_hrd) != ARPHRD_ETHER) {
                 return;
         }
         if (verbose > 3) {
@@ -1688,13 +1688,13 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
 void
 pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
 {
-        const unsigned char *pkt_dstmac;
-        const unsigned char *pkt_srcmac;
-        const struct libnet_802_1q_hdr *veth = NULL;
-	struct libnet_802_3_hdr *heth;
-	struct libnet_ipv4_hdr *hip;
-	struct libnet_icmpv4_hdr *hicmp;
+        unsigned char pkt_dstmac[ETH_ALEN];
+        unsigned char pkt_srcmac[ETH_ALEN];
+        struct libnet_ipv4_hdr hip;
+        // TODO: also inspect the echo fields.
+        struct libnet_icmpv4_hdr hicmp;
         struct timespec arrival;
+        const uint8_t* payload = NULL;
         UNUSED(unused);
         assert(packet);
 
@@ -1706,39 +1706,33 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
         getclock(&arrival);
 
         if (vlan_tag >= 0) {
+                struct libnet_802_1q_hdr veth;
                 if (h->caplen < LIBNET_802_1Q_H + LIBNET_IPV4_H
-                                + LIBNET_ICMPV4_H
+                                + LIBNET_ICMPV4_ECHO_H
                                 + sizeof(struct timespec)
                                 + payload_suffix_size) {
                         return;
                 }
-                veth = (void*)packet;
-                hip = (void*)((char*)veth + LIBNET_802_1Q_H);
-                hicmp = (void*)((char*)hip + LIBNET_IPV4_H);
-                pkt_srcmac = veth->vlan_shost;
-                pkt_dstmac = veth->vlan_dhost;
-        } else {
-                if (h->caplen < LIBNET_ETH_H + LIBNET_IPV4_H
-                                + LIBNET_ICMPV4_H
-                                + sizeof(struct timespec)
-                                + payload_suffix_size) {
-                        return;
+                if (verbose > 3) {
+                        printf("arping: ... good length\n");
                 }
-                heth = (void*)packet;
-                hip = (void*)((char*)heth + LIBNET_ETH_H);
-                hicmp = (void*)((char*)hip + LIBNET_IPV4_H);
-                pkt_srcmac = heth->_802_3_shost;
-                pkt_dstmac = heth->_802_3_dhost;
-        }
-        if (verbose > 3) {
-                printf("arping: ... good length\n");
-        }
+                memcpy(&veth, packet, LIBNET_802_1Q_H);
+                memcpy(&hip, (char*)packet
+                                + LIBNET_802_1Q_H, LIBNET_IPV4_H);
+                memcpy(&hicmp, (char*)packet
+                                + LIBNET_802_1Q_H
+                                + LIBNET_IPV4_H, LIBNET_ICMPV4_H);
+                memcpy(pkt_srcmac, veth.vlan_shost, ETH_ALEN);
+                memcpy(pkt_dstmac, veth.vlan_dhost, ETH_ALEN);
+                payload = packet
+                        + LIBNET_802_1Q_H
+                        + LIBNET_IPV4_H
+                        + LIBNET_ICMPV4_ECHO_H;
 
-        if (veth) {
-                if (veth->vlan_tpi != htons(0x8100)) {
+                if (veth.vlan_tpi != ntohs(0x8100)) {
                         return;
                 }
-                const int packet_vlan = 0xfff & ntohs(veth->vlan_priority_c_vid);
+                const int packet_vlan = 0xfff & ntohs(veth.vlan_priority_c_vid);
                 if (verbose > 3) {
                         printf("arping: ... is dot1q %d\n", packet_vlan);
                 }
@@ -1748,6 +1742,29 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
                 if (verbose > 3) {
                         printf("arping: ... right VLAN\n");
                 }
+        } else {
+                struct libnet_802_3_hdr heth;
+                if (h->caplen < LIBNET_ETH_H + LIBNET_IPV4_H
+                                + LIBNET_ICMPV4_ECHO_H
+                                + sizeof(struct timespec)
+                                + payload_suffix_size) {
+                        return;
+                }
+                if (verbose > 3) {
+                        printf("arping: ... good length\n");
+                }
+                memcpy(&heth, packet, LIBNET_ETH_H);
+                memcpy(&hip, (char*)packet
+                                + LIBNET_ETH_H, LIBNET_IPV4_H);
+                memcpy(&hicmp, (char*)packet
+                                + LIBNET_ETH_H
+                                + LIBNET_IPV4_H, LIBNET_ICMPV4_H);
+                memcpy(pkt_srcmac, heth._802_3_shost, ETH_ALEN);
+                memcpy(pkt_dstmac, heth._802_3_dhost, ETH_ALEN);
+                payload = packet
+                        + LIBNET_ETH_H
+                        + LIBNET_IPV4_H
+                        + LIBNET_ICMPV4_ECHO_H;
         }
 
         // Not checking ethertype because in theory this could be used for
@@ -1776,18 +1793,17 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
         // IPv4 Address must be me (maybe).
         if (addr_must_be_same) {
                 uint32_t tmp;
-                memcpy(&tmp, &hip->ip_src, 4);
+                memcpy(&tmp, &hip.ip_src, 4);
                 if (dstip != tmp) {
                         return;
                 }
         }
-
         if (verbose > 3) {
                 printf("arping: ... src IP acceptable\n");
         }
 
         // Must be ICMP echo reply type.
-        if (htons(hicmp->icmp_type) != ICMP_ECHOREPLY) {
+        if (ntohs(hicmp.icmp_type) != ICMP_ECHOREPLY) {
                 return;
         }
 
@@ -1796,7 +1812,7 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
         }
 
         // Must be ICMP echo reply code 0.
-        if (htons(hicmp->icmp_code) != 0) {
+        if (ntohs(hicmp.icmp_code) != 0) {
                 return;
         }
 
@@ -1804,8 +1820,7 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
                 printf("arping: ... is echo reply code\n");
         }
 
-        const char* payload = (char*)hicmp + LIBNET_ICMPV4_ECHO_H;
-        const size_t tmp = cast_ssize_size(payload - (char*)packet, NULL);
+        const size_t tmp = cast_ssize_size(payload - (uint8_t*)packet, NULL);
         if (h->caplen < tmp) {
                 return;
         }
@@ -1814,8 +1829,8 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
                 return;
         }
         if (verbose > 3) {
-                printf("arping: ... correct payload size (%zd)\n",
-                       payload_size);
+                printf("arping: ... correct payload size (%zu, suffix %zu)\n",
+                       payload_size, payload_suffix_size);
         }
         if (memcmp(&payload[sizeof(struct timespec)],
                    payload_suffix, payload_suffix_size)) {
@@ -1839,13 +1854,13 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
                 break;
         case NORMAL:
                 printf("%u bytes from %s (%s): icmp_seq=%hu time=%s", h->len,
-                       libnet_addr2name4(hip->ip_src.s_addr, 0),
+                       libnet_addr2name4(hip.ip_src.s_addr, 0),
                        format_mac(pkt_srcmac, buf, sizeof(buf)),
-                       ntohs(hicmp->icmp_seq),
+                       ntohs(hicmp.icmp_seq),
                        ts2str(&lastpacketsent, &arrival, buf2, sizeof(buf2)));
                 break;
         case RAW:
-                printf("%s", libnet_addr2name4(hip->ip_src.s_addr, 0));
+                printf("%s", libnet_addr2name4(hip.ip_src.s_addr, 0));
                 break;
         case RRAW:
                 printf("%s", format_mac(pkt_srcmac, buf, sizeof(buf)));
@@ -1853,7 +1868,7 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
         case RAWRAW:
                 printf("%s %s",
                        format_mac(pkt_srcmac, buf, sizeof(buf)),
-                       libnet_addr2name4(hip->ip_src.s_addr, 0));
+                       libnet_addr2name4(hip.ip_src.s_addr, 0));
                 break;
         default:
                 fprintf(stderr, "arping: can't-happen-bug\n");
