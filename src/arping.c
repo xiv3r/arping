@@ -2645,8 +2645,8 @@ arping_main(int argc, char **argv)
                         succ = 100.0 - 100.0 * (double)(numrecvd)/(double)numsent;
                 }
                 printf("\n--- %s statistics ---\n"
-                       "%d packets transmitted, "
-                       "%d packets received, "
+                       "%u packets transmitted, "
+                       "%u packets received, "
                        "%3.0f%% "
                        "unanswered (%d extra)\n",
                        target,numsent,numrecvd,
