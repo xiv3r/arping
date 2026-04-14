@@ -4,10 +4,12 @@
 #include "config.h"
 #include <stdint.h>
 #include <inttypes.h>
+#include <limits.h>
 #include <stddef.h>
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
+unsigned cast_float_unsigned(float x);
 void cast_assert(int must, const char* fmt, ...);
 uint16_t cast_int16_uint16(int16_t from, const char* fmt, ...);
 size_t cast_ssize_size(ssize_t from, const char* fmt, ...);

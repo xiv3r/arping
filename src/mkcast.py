@@ -74,18 +74,29 @@ def codegen(fc, fh):
     fh.write("""#include "config.h"
 #include <stdint.h>
 #include <inttypes.h>
+#include <limits.h>
 #include <stddef.h>
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
+unsigned cast_float_unsigned(float x);
 void cast_assert(int must, const char* fmt, ...);
 """)
     fc.write("""
 #include "cast.h"
+#include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 const ssize_t ssize_max = (ssize_t)(((size_t)-1) >> 1);
+unsigned
+cast_float_unsigned(float x)
+{
+    cast_assert(!isnan(x), "Tried casting %f to unsigned. It's nan", x);
+    cast_assert(x >= 0.0f, "Tried casting %f to unsigned. It's not positive", x);
+    cast_assert(x <= (float)UINT_MAX, "Tried casting %f to unsigned. It's too big", x);
+    return (unsigned)x;
+}
 void
 cast_assert(int must, const char* fmt, ...)
 {

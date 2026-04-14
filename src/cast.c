@@ -3,10 +3,19 @@
  */
 
 #include "cast.h"
+#include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 const ssize_t ssize_max = (ssize_t)(((size_t)-1) >> 1);
+unsigned
+cast_float_unsigned(float x)
+{
+    cast_assert(!isnan(x), "Tried casting %f to unsigned. It's nan", x);
+    cast_assert(x >= 0.0f, "Tried casting %f to unsigned. It's not positive", x);
+    cast_assert(x <= (float)UINT_MAX, "Tried casting %f to unsigned. It's too big", x);
+    return (unsigned)x;
+}
 void
 cast_assert(int must, const char* fmt, ...)
 {
@@ -68,7 +77,7 @@ cast_size_ssize(size_t from, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    cast_assert(from <= ssize_max, "cast_size_ssize(%"PRIuMAX"): %s", (uintmax_t)from, "wrapped after casting");
+    cast_assert(from <= SSIZE_MAX, "cast_size_ssize(%"PRIuMAX"): %s", (uintmax_t)from, "wrapped after casting");
     const ssize_t to = (ssize_t)from;
     cast_assert(to >= 0, "cast_size_ssize(%"PRIuMAX"): %s", (uintmax_t)from, "wrapped after casting");
     if (from != (size_t)to) {

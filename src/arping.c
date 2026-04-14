@@ -2205,15 +2205,13 @@ arping_main(int argc, char **argv)
                 case 'W': {
                         const float val = must_parse_float(optarg,
                                                            "packetwait (-W)");
-                        // TODO: range check into unsigned.
-                        // Also turns out zero doesn't work.
-                        packetwait = (unsigned)(1000000.0 * val);
-                        if (val < 0) {
+                        if (val < 0.0) {
                                 fprintf(stderr,
                                         "arping: packetwait (-W) must be >=0. Is %f\n",
                                         val);
                                 exit(1);
                         }
+                        packetwait = cast_float_unsigned(1000000.0 * val);
                         break;
                 }
                 case 'z':
