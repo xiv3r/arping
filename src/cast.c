@@ -7,7 +7,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-const ssize_t ssize_max = (ssize_t)(((size_t)-1) >> 1);
 unsigned
 cast_float_unsigned(float x)
 {

@@ -44,7 +44,7 @@ def is_signed(t):
 
 def type_max(t):
     return {
-        'ssize_t': 'ssize_max',
+        'ssize_t': 'SSIZE_MAX',
         'size_t': 'SIZE_MAX',
         'int8_t': 'INT8_MAX',
         'uint8_t': 'UINT8_MAX',
@@ -88,7 +88,6 @@ void cast_assert(int must, const char* fmt, ...);
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-const ssize_t ssize_max = (ssize_t)(((size_t)-1) >> 1);
 unsigned
 cast_float_unsigned(float x)
 {
