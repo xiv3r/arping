@@ -1351,9 +1351,9 @@ pingmac_send(uint16_t id, uint16_t seq)
         }
 	if (verbose > 1) {
                 getclock(&lastpacketsent);
-                printf("arping: sending packet at time %ld.%09ld\n",
-                       (long)lastpacketsent.tv_sec,
-                       (long)lastpacketsent.tv_nsec);
+                printf("arping: sending packet at time %"PRIdMAX".%09"PRIdMAX"\n",
+                       (intmax_t)lastpacketsent.tv_sec,
+                       (intmax_t)lastpacketsent.tv_nsec);
 	}
         if (-1 == libnet_write(libnet)) {
 		fprintf(stderr, "arping: libnet_write(): %s\n",
@@ -1427,9 +1427,9 @@ pingip_send()
 	}
 	if (verbose > 1) {
                 getclock(&lastpacketsent);
-                printf("arping: sending packet at time %ld.%09ld\n",
-                       (long)lastpacketsent.tv_sec,
-                       (long)lastpacketsent.tv_nsec);
+                printf("arping: sending packet at time %"PRIdMAX".%09"PRIdMAX"\n",
+                       (intmax_t)lastpacketsent.tv_sec,
+                       (intmax_t)lastpacketsent.tv_nsec);
 	}
         if (send_reply) {
                 printf("Sending ARP reply\n");
