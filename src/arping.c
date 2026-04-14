@@ -2632,12 +2632,18 @@ arping_main(int argc, char **argv)
 		}
 	}
         if (display == DOT) {
-                const double succ = 100.0 - 100.0 * (double)(numrecvd)/(double)numsent;
+                double succ = 0.0;
+                if (numsent > 0) {
+                        succ = 100.0 - 100.0 * (double)(numrecvd)/(double)numsent;
+                }
                 printf("\t%3.0f%% packet loss (%d extra)\n",
                        (succ < 0.0) ? 0.0 : succ,
                        (succ < 0.0) ? (numrecvd - numsent) : 0);
         } else if (display == NORMAL) {
-                const double succ = 100.0 - 100.0 * (double)(numrecvd)/(double)numsent;
+                double succ = 0.0;
+                if (numsent > 0) {
+                        succ = 100.0 - 100.0 * (double)(numrecvd)/(double)numsent;
+                }
                 printf("\n--- %s statistics ---\n"
                        "%d packets transmitted, "
                        "%d packets received, "
