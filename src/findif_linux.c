@@ -48,7 +48,7 @@ arping_lookupdev(uint32_t srcip,
 	char buf1[1024];
 	char buf2[1024];
 	char *p,*p2;
-	int n;
+        size_t n;
 
         *ebuf = 0;
 
@@ -66,7 +66,13 @@ arping_lookupdev(uint32_t srcip,
                          "popen(/sbin/ip): %s", strerror(errno));
 		goto failed;
 	}
-	if (0>(n = fread(buf, 1, sizeof(buf)-1, f))) {
+        n = fread(buf, 1, sizeof(buf)-1, f);
+        if (n == 0) {
+                xsnprintf(ebuf, LIBNET_ERRBUF_SIZE,
+                         "fread(/sbin/route) empty: %s", strerror(errno));
+                goto failed;
+        }
+        if (ferror(f)) {
                 xsnprintf(ebuf, LIBNET_ERRBUF_SIZE,
                          "fread(/sbin/ip): %s", strerror(errno));
 		goto failed;
