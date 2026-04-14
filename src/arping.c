@@ -393,7 +393,7 @@ parse_ulong(const char* in, const char* what, char* ebuf, size_t ebuflen)
 static ssize_t
 xgetrandom(void *buf, const size_t buflen, const unsigned int flags)
 {
-#ifdef ACTUALLY_HAVE_GETRANDOM
+#ifdef ACTUALLY_HAS_GETRANDOM
         return getrandom(buf, buflen, flags);
 #else
         UNUSED(flags);
