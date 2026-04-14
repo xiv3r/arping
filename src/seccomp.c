@@ -12,11 +12,13 @@
 #include <string.h>
 #include <unistd.h>
 
+#define UNUSED(x) (void)(x)
 
 #if !USE_SECCOMP
 void
 drop_seccomp(int libnet_fd)
 {
+        UNUSED(libnet_fd);
         if (verbose > 2) {
                 printf("arping: seccomp support not built in, skipping\n");
         }
