@@ -1216,10 +1216,7 @@ wait_time(double deadline, uint32_t packetwait)
         if (max_wait > packetwait / 1000000.0) {
                 return packetwait;
         }
-
-        // TODO: check for overflows. Though what's the worst that
-        // could happen?
-        return (uint32_t)(max_wait * 1000000);
+        return cast_double_uint32(max_wait * 1000000);
 }
 
 /**
