@@ -1721,7 +1721,7 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
                                 + LIBNET_802_1Q_H, LIBNET_IPV4_H);
                 memcpy(&hicmp, (char*)packet
                                 + LIBNET_802_1Q_H
-                                + LIBNET_IPV4_H, LIBNET_ICMPV4_H);
+                                + LIBNET_IPV4_H, LIBNET_ICMPV4_ECHO_H);
                 memcpy(pkt_srcmac, veth.vlan_shost, ETH_ALEN);
                 memcpy(pkt_dstmac, veth.vlan_dhost, ETH_ALEN);
                 payload = packet
@@ -1758,7 +1758,7 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
                                 + LIBNET_ETH_H, LIBNET_IPV4_H);
                 memcpy(&hicmp, (char*)packet
                                 + LIBNET_ETH_H
-                                + LIBNET_IPV4_H, LIBNET_ICMPV4_H);
+                                + LIBNET_IPV4_H, LIBNET_ICMPV4_ECHO_H);
                 memcpy(pkt_srcmac, heth._802_3_shost, ETH_ALEN);
                 memcpy(pkt_dstmac, heth._802_3_dhost, ETH_ALEN);
                 payload = packet
