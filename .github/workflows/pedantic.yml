@@ -7,5 +7,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Install dependencies
+        run:  sudo apt-get install -y libnet1-dev libpcap-dev automake autoconf check tcpdump openssh-server
       - name: Pedantic check
         run: ./extra/pedantic.sh
