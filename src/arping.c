@@ -1495,7 +1495,7 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
                 memcpy(&veth, (void*)packet, LIBNET_802_1Q_H);
                 memcpy(pkt_srcmac, veth.vlan_shost, ETH_ALEN);
 
-                if (veth.vlan_tpi != ntohs(0x8100)) {
+                if (ntohs(veth.vlan_tpi) != 0x8100) {
                         return;
                 }
                 if (verbose > 3) {
@@ -1729,7 +1729,7 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
                         + LIBNET_IPV4_H
                         + LIBNET_ICMPV4_ECHO_H;
 
-                if (veth.vlan_tpi != ntohs(0x8100)) {
+                if (ntohs(veth.vlan_tpi) != 0x8100) {
                         return;
                 }
                 const int packet_vlan = 0xfff & ntohs(veth.vlan_priority_c_vid);
