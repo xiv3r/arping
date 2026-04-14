@@ -1602,7 +1602,7 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
                 putchar('!');
                 break;
         case NORMAL:
-                printf("%d bytes from %s (%s): index=%d",
+                printf("%u bytes from %s (%s): index=%u",
                        h->len, format_mac(pkt_srcmac, buf, sizeof(buf)),
                        libnet_addr2name4(ip, 0), numrecvd);
 
@@ -1807,7 +1807,7 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
                 putchar('!');
                 break;
         case NORMAL:
-                printf("%d bytes from %s (%s): icmp_seq=%d time=%s", h->len,
+                printf("%u bytes from %s (%s): icmp_seq=%d time=%s", h->len,
                        libnet_addr2name4(*(uint32_t*)&hip->ip_src, 0),
                        format_mac(pkt_srcmac, buf, sizeof(buf)),
                        htons(hicmp->icmp_seq),
@@ -2634,7 +2634,7 @@ arping_main(int argc, char **argv)
                 if (numsent > 0) {
                         succ = 100.0 - 100.0 * (double)(numrecvd)/(double)numsent;
                 }
-                printf("\t%3.0f%% packet loss (%d extra)\n",
+                printf("\t%3.0f%% packet loss (%u extra)\n",
                        (succ < 0.0) ? 0.0 : succ,
                        (succ < 0.0) ? (numrecvd - numsent) : 0);
         } else if (display == NORMAL) {
@@ -2646,7 +2646,7 @@ arping_main(int argc, char **argv)
                        "%u packets transmitted, "
                        "%u packets received, "
                        "%3.0f%% "
-                       "unanswered (%d extra)\n",
+                       "unanswered (%u extra)\n",
                        target,numsent,numrecvd,
                        (succ < 0.0) ? 0.0 : succ,
                        (succ < 0.0) ? (numrecvd - numsent): 0);
