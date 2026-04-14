@@ -1811,7 +1811,7 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
                 printf("%u bytes from %s (%s): icmp_seq=%hu time=%s", h->len,
                        libnet_addr2name4(*(uint32_t*)&hip->ip_src, 0),
                        format_mac(pkt_srcmac, buf, sizeof(buf)),
-                       htons(hicmp->icmp_seq),
+                       ntohs(hicmp->icmp_seq),
                        ts2str(&lastpacketsent, &arrival, buf2, sizeof(buf2)));
                 break;
         case RAW:
