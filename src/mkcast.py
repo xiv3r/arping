@@ -42,6 +42,21 @@ def is_signed(t):
         return True
     return False
 
+def type_max(t):
+    return {
+        'ssize_t': 'ssize_max',
+        'size_t': 'SIZE_MAX',
+        'int8_t': 'INT8_MAX',
+        'uint8_t': 'UINT8_MAX',
+        'uint16_t': 'UINT16_MAX',
+        'int16_t': 'INT16_MAX',
+        'uint32_t': 'UINT32_MAX',
+        'int': 'INT_MAX',
+        'unsigned int': 'UINT_MAX',
+        'gid_t': 'GID_MAX',
+        'unsigned long long': 'ULONGLONG_MAX',
+    }[t]
+
 def main():
     d = os.path.dirname(sys.argv[0])
     with open(os.path.join(d, 'cast.c'), 'w') as fc:
@@ -57,6 +72,7 @@ def codegen(fc, fh):
     fh.write(genheader)
     fc.write(genheader)
     fh.write("""#include "config.h"
+#include <stdint.h>
 #include <inttypes.h>
 #include <stddef.h>
 #ifdef HAVE_SYS_TYPES_H
@@ -69,6 +85,7 @@ void cast_assert(int must, const char* fmt, ...);
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+const ssize_t ssize_max = (ssize_t)(((size_t)-1) >> 1);
 void
 cast_assert(int must, const char* fmt, ...)
 {
@@ -115,6 +132,7 @@ cast_assert(int must, const char* fmt, ...)
         from_signed = is_signed(src)
         s2u = is_signed(src) and is_unsigned(dst)
         u2s = is_unsigned(src) and is_signed(dst)
+        keys['dst_max'] = type_max(dst)
 
         if from_signed:
             keys['errstr'] = '"cast_{src_name}_{dst_name}(%"PRIdMAX"): %s", (intmax_t)from'.format(**keys)
@@ -131,12 +149,14 @@ cast_{src_name}_{dst_name}({src} from, const char* fmt, ...)
 """.format(**keys))
 
         if s2u:
-            fc.write('    cast_assert(from >= 0, {errstr}, "need >= 0");'.format(**keys));
+            fc.write('    cast_assert(from >= 0, {errstr}, "need >= 0");\n'.format(**keys));
+        if u2s:
+            fc.write('    cast_assert(from <= {dst_max}, {errstr}, "wrapped after casting");\n'.format(**keys));
 
-        fc.write("    const {dst} to = ({dst})from;".format(**keys))
+        fc.write("    const {dst} to = ({dst})from;\n".format(**keys))
 
         if u2s:
-            fc.write('    cast_assert(to >= 0, {errstr}, "wrapped after casting");'.format(**keys));
+            fc.write('    cast_assert(to >= 0, {errstr}, "wrapped after casting");\n'.format(**keys));
 
         fc.write("""    if (from != ({src})to) {{
         fprintf(stderr, "arping: ");

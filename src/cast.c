@@ -6,6 +6,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+const ssize_t ssize_max = (ssize_t)(((size_t)-1) >> 1);
 void
 cast_assert(int must, const char* fmt, ...)
 {
@@ -25,7 +26,9 @@ cast_int16_uint16(int16_t from, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    cast_assert(from >= 0, "cast_int16_uint16(%"PRIdMAX"): %s", (intmax_t)from, "need >= 0");    const uint16_t to = (uint16_t)from;    if (from != (int16_t)to) {
+    cast_assert(from >= 0, "cast_int16_uint16(%"PRIdMAX"): %s", (intmax_t)from, "need >= 0");
+    const uint16_t to = (uint16_t)from;
+    if (from != (int16_t)to) {
         fprintf(stderr, "arping: ");
         if (fmt) {
           vfprintf(stderr, fmt, ap);
@@ -44,7 +47,9 @@ cast_ssize_size(ssize_t from, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    cast_assert(from >= 0, "cast_ssize_size(%"PRIdMAX"): %s", (intmax_t)from, "need >= 0");    const size_t to = (size_t)from;    if (from != (ssize_t)to) {
+    cast_assert(from >= 0, "cast_ssize_size(%"PRIdMAX"): %s", (intmax_t)from, "need >= 0");
+    const size_t to = (size_t)from;
+    if (from != (ssize_t)to) {
         fprintf(stderr, "arping: ");
         if (fmt) {
           vfprintf(stderr, fmt, ap);
@@ -63,7 +68,10 @@ cast_size_ssize(size_t from, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    const ssize_t to = (ssize_t)from;    cast_assert(to >= 0, "cast_size_ssize(%"PRIuMAX"): %s", (uintmax_t)from, "wrapped after casting");    if (from != (size_t)to) {
+    cast_assert(from <= ssize_max, "cast_size_ssize(%"PRIuMAX"): %s", (uintmax_t)from, "wrapped after casting");
+    const ssize_t to = (ssize_t)from;
+    cast_assert(to >= 0, "cast_size_ssize(%"PRIuMAX"): %s", (uintmax_t)from, "wrapped after casting");
+    if (from != (size_t)to) {
         fprintf(stderr, "arping: ");
         if (fmt) {
           vfprintf(stderr, fmt, ap);
@@ -82,7 +90,8 @@ cast_size_uint16(size_t from, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    const uint16_t to = (uint16_t)from;    if (from != (size_t)to) {
+    const uint16_t to = (uint16_t)from;
+    if (from != (size_t)to) {
         fprintf(stderr, "arping: ");
         if (fmt) {
           vfprintf(stderr, fmt, ap);
@@ -101,7 +110,8 @@ cast_size_uint32(size_t from, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    const uint32_t to = (uint32_t)from;    if (from != (size_t)to) {
+    const uint32_t to = (uint32_t)from;
+    if (from != (size_t)to) {
         fprintf(stderr, "arping: ");
         if (fmt) {
           vfprintf(stderr, fmt, ap);
@@ -120,7 +130,8 @@ cast_ulong_uint(unsigned long from, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    const unsigned int to = (unsigned int)from;    if (from != (unsigned long)to) {
+    const unsigned int to = (unsigned int)from;
+    if (from != (unsigned long)to) {
         fprintf(stderr, "arping: ");
         if (fmt) {
           vfprintf(stderr, fmt, ap);
@@ -139,7 +150,8 @@ cast_long_int16(long from, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    const int16_t to = (int16_t)from;    if (from != (long)to) {
+    const int16_t to = (int16_t)from;
+    if (from != (long)to) {
         fprintf(stderr, "arping: ");
         if (fmt) {
           vfprintf(stderr, fmt, ap);
@@ -158,7 +170,9 @@ cast_int16_uint8(int16_t from, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    cast_assert(from >= 0, "cast_int16_uint8(%"PRIdMAX"): %s", (intmax_t)from, "need >= 0");    const uint8_t to = (uint8_t)from;    if (from != (int16_t)to) {
+    cast_assert(from >= 0, "cast_int16_uint8(%"PRIdMAX"): %s", (intmax_t)from, "need >= 0");
+    const uint8_t to = (uint8_t)from;
+    if (from != (int16_t)to) {
         fprintf(stderr, "arping: ");
         if (fmt) {
           vfprintf(stderr, fmt, ap);
@@ -177,7 +191,9 @@ cast_int_uint(int from, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    cast_assert(from >= 0, "cast_int_uint(%"PRIdMAX"): %s", (intmax_t)from, "need >= 0");    const unsigned int to = (unsigned int)from;    if (from != (int)to) {
+    cast_assert(from >= 0, "cast_int_uint(%"PRIdMAX"): %s", (intmax_t)from, "need >= 0");
+    const unsigned int to = (unsigned int)from;
+    if (from != (int)to) {
         fprintf(stderr, "arping: ");
         if (fmt) {
           vfprintf(stderr, fmt, ap);
@@ -196,7 +212,9 @@ cast_int_uint16(int from, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    cast_assert(from >= 0, "cast_int_uint16(%"PRIdMAX"): %s", (intmax_t)from, "need >= 0");    const uint16_t to = (uint16_t)from;    if (from != (int)to) {
+    cast_assert(from >= 0, "cast_int_uint16(%"PRIdMAX"): %s", (intmax_t)from, "need >= 0");
+    const uint16_t to = (uint16_t)from;
+    if (from != (int)to) {
         fprintf(stderr, "arping: ");
         if (fmt) {
           vfprintf(stderr, fmt, ap);
@@ -215,7 +233,8 @@ cast_long_int(long from, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    const int to = (int)from;    if (from != (long)to) {
+    const int to = (int)from;
+    if (from != (long)to) {
         fprintf(stderr, "arping: ");
         if (fmt) {
           vfprintf(stderr, fmt, ap);
@@ -234,7 +253,9 @@ cast_long_uint8(long from, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    cast_assert(from >= 0, "cast_long_uint8(%"PRIdMAX"): %s", (intmax_t)from, "need >= 0");    const uint8_t to = (uint8_t)from;    if (from != (long)to) {
+    cast_assert(from >= 0, "cast_long_uint8(%"PRIdMAX"): %s", (intmax_t)from, "need >= 0");
+    const uint8_t to = (uint8_t)from;
+    if (from != (long)to) {
         fprintf(stderr, "arping: ");
         if (fmt) {
           vfprintf(stderr, fmt, ap);
@@ -253,7 +274,8 @@ cast_ulong_gid(unsigned long from, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    const gid_t to = (gid_t)from;    if (from != (unsigned long)to) {
+    const gid_t to = (gid_t)from;
+    if (from != (unsigned long)to) {
         fprintf(stderr, "arping: ");
         if (fmt) {
           vfprintf(stderr, fmt, ap);
@@ -272,7 +294,9 @@ cast_longlong_ulonglong(long long from, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    cast_assert(from >= 0, "cast_longlong_ulonglong(%"PRIdMAX"): %s", (intmax_t)from, "need >= 0");    const unsigned long long to = (unsigned long long)from;    if (from != (long long)to) {
+    cast_assert(from >= 0, "cast_longlong_ulonglong(%"PRIdMAX"): %s", (intmax_t)from, "need >= 0");
+    const unsigned long long to = (unsigned long long)from;
+    if (from != (long long)to) {
         fprintf(stderr, "arping: ");
         if (fmt) {
           vfprintf(stderr, fmt, ap);
@@ -291,7 +315,9 @@ cast_longlong_uint(long long from, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    cast_assert(from >= 0, "cast_longlong_uint(%"PRIdMAX"): %s", (intmax_t)from, "need >= 0");    const unsigned int to = (unsigned int)from;    if (from != (long long)to) {
+    cast_assert(from >= 0, "cast_longlong_uint(%"PRIdMAX"): %s", (intmax_t)from, "need >= 0");
+    const unsigned int to = (unsigned int)from;
+    if (from != (long long)to) {
         fprintf(stderr, "arping: ");
         if (fmt) {
           vfprintf(stderr, fmt, ap);
@@ -310,7 +336,8 @@ cast_int_int16(int from, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    const int16_t to = (int16_t)from;    if (from != (int)to) {
+    const int16_t to = (int16_t)from;
+    if (from != (int)to) {
         fprintf(stderr, "arping: ");
         if (fmt) {
           vfprintf(stderr, fmt, ap);
