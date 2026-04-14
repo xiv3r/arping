@@ -1803,7 +1803,7 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
         }
 
         // Must be ICMP echo reply type.
-        if (ntohs(hicmp.icmp_type) != ICMP_ECHOREPLY) {
+        if (hicmp.icmp_type != ICMP_ECHOREPLY) {
                 return;
         }
 
@@ -1812,7 +1812,7 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
         }
 
         // Must be ICMP echo reply code 0.
-        if (ntohs(hicmp.icmp_code) != 0) {
+        if (hicmp.icmp_code != 0) {
                 return;
         }
 
