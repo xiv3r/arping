@@ -2257,7 +2257,7 @@ arping_main(int argc, char **argv)
 
         // Randomize should be even better.
         const ssize_t rc = xgetrandom(payload_suffix, payload_suffix_size, 0);
-        if (rc < -1) {
+        if (rc < 0) {
                 fprintf(stderr,
                         "arping: failed to get %zu random bytes: %s\n",
                         payload_suffix_size,
