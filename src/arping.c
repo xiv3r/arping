@@ -1469,9 +1469,9 @@ void
 pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet)
 {
         const unsigned char *pkt_srcmac;
-        const struct libnet_802_1q_hdr *veth = NULL;
-	struct libnet_802_3_hdr *heth;
-	struct libnet_arp_hdr *harp;
+        const char* arpdata = NULL;
+        int ethernet_header_size = LIBNET_ETH_H;
+        struct libnet_arp_hdr harp;
         struct timespec arrival;
         UNUSED(unused);
         assert(packet);
@@ -1482,32 +1482,28 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
 
         getclock(&arrival);
 
+        // Handle both sizes of ethernet frames.
 	if (vlan_tag >= 0) {
+                struct libnet_802_1q_hdr veth;
                 if (h->caplen < LIBNET_802_1Q_H + LIBNET_ARP_H + 2*(ETH_ALEN + 4)) {
                         return;
                 }
-		veth = (void*)packet;
-		harp = (void*)((char*)veth + LIBNET_802_1Q_H);
-		pkt_srcmac = veth->vlan_shost;
-	} else {
-                if (h->caplen < LIBNET_ETH_H + LIBNET_ARP_H + 2*(ETH_ALEN + 4)) {
-                        return;
-                }
-		heth = (void*)packet;
-		harp = (void*)((char*)heth + LIBNET_ETH_H);
-		pkt_srcmac = heth->_802_3_shost;
-        }
-        if (verbose > 3) {
-                printf("arping: ... good length\n");
-        }
-
-        if (veth) {
-                if (veth->vlan_tpi != htons(0x8100)) {
-                        return;
-                }
-                const int packet_vlan = 0xfff & ntohs(veth->vlan_priority_c_vid);
                 if (verbose > 3) {
-                        printf("arping: ... is dot1q %d\n", packet_vlan);
+                        printf("arping: ... good length\n");
+                }
+                ethernet_header_size = LIBNET_802_1Q_H;
+                memcpy(&veth, (void*)packet, LIBNET_802_1Q_H);
+                pkt_srcmac = veth.vlan_shost;
+
+                if (veth.vlan_tpi != htons(0x8100)) {
+                        return;
+                }
+                if (verbose > 3) {
+                        printf("arping: ... TPI 0x8100\n");
+                }
+                const int packet_vlan = 0xfff & ntohs(veth.vlan_priority_c_vid);
+                if (verbose > 4) {
+                        printf("arping: ... is dot1q VLAN %d\n", packet_vlan);
                 }
                 if (packet_vlan != vlan_tag) {
                         return;
@@ -1515,13 +1511,26 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
                 if (verbose > 3) {
                         printf("arping: ... right VLAN\n");
                 }
+	} else {
+                if (h->caplen < LIBNET_ETH_H + LIBNET_ARP_H + 2*(ETH_ALEN + 4)) {
+                        return;
+                }
+                if (verbose > 3) {
+                        printf("arping: ... good length\n");
+                }
+                struct libnet_802_3_hdr *heth = (void*)packet;
+		pkt_srcmac = heth->_802_3_shost;
         }
+
+        // Set up aligned structs for further checking.
+        memcpy(&harp, (char*)packet + ethernet_header_size, LIBNET_ARP_H);
+        arpdata = packet + ethernet_header_size + LIBNET_ARP_H;
 
         // Not checking ethertype because in theory this could be used for
         // Ethernet II.
 
         // Wrong length of hardware address.
-        if (harp->ar_hln != ETH_ALEN) {
+        if (harp.ar_hln != ETH_ALEN) {
                 return;
         }
         if (verbose > 3) {
@@ -1529,7 +1538,7 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
         }
 
         // Wrong length of protocol address.
-        if (harp->ar_pln != 4) {
+        if (harp.ar_pln != 4) {
                 return;
         }
         if (verbose > 3) {
@@ -1537,7 +1546,7 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
         }
 
         // ARP reply.
-        if (htons(harp->ar_op) != ARPOP_REPLY) {
+        if (htons(harp.ar_op) != ARPOP_REPLY) {
                 return;
         }
         if (verbose > 3) {
@@ -1545,7 +1554,7 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
         }
 
         // From IPv4 address reply.
-        if (htons(harp->ar_pro) != ETHERTYPE_IP) {
+        if (htons(harp.ar_pro) != ETHERTYPE_IP) {
                 return;
         }
         if (verbose > 3) {
@@ -1553,7 +1562,7 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
         }
 
         // To Ethernet address.
-        if (htons(harp->ar_hrd) != ARPHRD_ETHER) {
+        if (htons(harp.ar_hrd) != ARPHRD_ETHER) {
                 return;
         }
         if (verbose > 3) {
@@ -1561,10 +1570,9 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
         }
 
         // Must be sent from target address.
-        // Should very likely only be used if using -T.
+        // Should very likely only be used if using -t.
         if (addr_must_be_same) {
-                if (memcmp((u_char*)harp + sizeof(struct libnet_arp_hdr),
-                           dstmac, ETH_ALEN)) {
+                if (memcmp(arpdata, dstmac, ETH_ALEN)) {
                         return;
                 }
         }
@@ -1581,8 +1589,7 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
         // but also allow packets to any destination (disable filter
         // in `arping`).
         {
-                const uint8_t* p = (u_char*)harp
-                        + sizeof(struct libnet_arp_hdr)
+                const uint8_t* p = (u_char*)arpdata
                         + ETH_ALEN
                         + IP_ALEN;
                 char buf[128];
@@ -1598,16 +1605,17 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
                 printf("arping: ... destination is the source we used\n");
         }
 
-
         // Actually the IPv4 address we asked for.
         uint32_t ip;
-        memcpy(&ip, (char*)harp + harp->ar_hln + LIBNET_ARP_H, 4);
+        memcpy(&ip, (char*)arpdata + harp.ar_hln, 4);
         if (dstip != ip) {
                 return;
         }
         if (verbose > 3) {
                 printf("arping: ... for the right IPv4 address!\n");
         }
+
+        // Packet is correct.
 
         update_stats(timespec2dbl(&arrival) - timespec2dbl(&lastpacketsent));
         char buf[128];
