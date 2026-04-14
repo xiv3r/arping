@@ -54,6 +54,7 @@ def type_max(t):
         'int': 'INT_MAX',
         'unsigned int': 'UINT_MAX',
         'gid_t': 'GID_MAX',
+        'unsigned long': 'ULONG_MAX',
         'unsigned long long': 'ULONGLONG_MAX',
     }[t]
 
@@ -130,6 +131,8 @@ cast_assert(int must, const char* fmt, ...)
             ('long long', 'unsigned long long'),
             ('long long', 'unsigned int'),
             ('int', 'int16_t'),
+            ('long', 'unsigned long'),
+            ('long', 'unsigned int'),
     ]:
         keys = {
             'src': src,

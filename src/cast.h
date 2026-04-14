@@ -27,3 +27,5 @@ gid_t cast_ulong_gid(unsigned long from, const char* fmt, ...);
 unsigned long long cast_longlong_ulonglong(long long from, const char* fmt, ...);
 unsigned int cast_longlong_uint(long long from, const char* fmt, ...);
 int16_t cast_int_int16(int from, const char* fmt, ...);
+unsigned long cast_long_ulong(long from, const char* fmt, ...);
+unsigned int cast_long_uint(long from, const char* fmt, ...);

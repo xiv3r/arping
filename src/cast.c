@@ -359,3 +359,45 @@ cast_int_int16(int from, const char* fmt, ...)
     va_end(ap);
     return to;
 }
+unsigned long
+cast_long_ulong(long from, const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    cast_assert(from >= 0, "cast_long_ulong(%"PRIdMAX"): %s", (intmax_t)from, "need >= 0");
+    const unsigned long to = (unsigned long)from;
+    if (from != (long)to) {
+        fprintf(stderr, "arping: ");
+        if (fmt) {
+          vfprintf(stderr, fmt, ap);
+          fprintf(stderr, ": value won't fit in unsigned long");
+        } else {
+          fprintf(stderr, "cast_long_ulong(%"PRIdMAX"): %s", (intmax_t)from, "value won't fit in unsigned long\n");
+        }
+        fprintf(stderr, "\n");
+        exit(1);
+    }
+    va_end(ap);
+    return to;
+}
+unsigned int
+cast_long_uint(long from, const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    cast_assert(from >= 0, "cast_long_uint(%"PRIdMAX"): %s", (intmax_t)from, "need >= 0");
+    const unsigned int to = (unsigned int)from;
+    if (from != (long)to) {
+        fprintf(stderr, "arping: ");
+        if (fmt) {
+          vfprintf(stderr, fmt, ap);
+          fprintf(stderr, ": value won't fit in unsigned int");
+        } else {
+          fprintf(stderr, "cast_long_uint(%"PRIdMAX"): %s", (intmax_t)from, "value won't fit in unsigned int\n");
+        }
+        fprintf(stderr, "\n");
+        exit(1);
+    }
+    va_end(ap);
+    return to;
+}
