@@ -1607,7 +1607,11 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
                        libnet_addr2name4(ip, 0), numrecvd);
 
                 if (alsototal) {
-                        printf("/%u", numsent-1);
+                        unsigned int t = numsent;
+                        if (t > 0) {
+                                --t;
+                        }
+                        printf("/%u", t);
                 }
                 printf(" time=%s", ts2str(&lastpacketsent, &arrival, buf,
                                           sizeof(buf)));
@@ -1807,7 +1811,7 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
                 putchar('!');
                 break;
         case NORMAL:
-                printf("%u bytes from %s (%s): icmp_seq=%d time=%s", h->len,
+                printf("%u bytes from %s (%s): icmp_seq=%hu time=%s", h->len,
                        libnet_addr2name4(*(uint32_t*)&hip->ip_src, 0),
                        format_mac(pkt_srcmac, buf, sizeof(buf)),
                        htons(hicmp->icmp_seq),
@@ -1869,8 +1873,8 @@ ping_recv(pcap_t *pcap, uint32_t packetwait, pcap_handler func)
 
        if (send_reply) {
                if (verbose > 3) {
-                       printf("arping: sending replies. Waiting %ld us…\n",
-                              (long)packetwait);
+                       printf("arping: sending replies. Waiting %"PRIdMAX" us…\n",
+                              (intmax_t)packetwait);
                }
                usleep(packetwait);
                return;
@@ -1901,8 +1905,8 @@ ping_recv(pcap_t *pcap, uint32_t packetwait, pcap_handler func)
 	       ts.tv_nsec = endtime.tv_nsec - ts.tv_nsec;
 	       fixup_timespec(&ts);
                if (verbose > 2) {
-                       printf("arping: listen for replies for %ld.%09ld sec\n",
-                              (long)ts.tv_sec, (long)ts.tv_nsec);
+                       printf("arping: listen for replies for %"PRIdMAX".%09"PRIdMAX" sec\n",
+                              (intmax_t)ts.tv_sec, (intmax_t)ts.tv_nsec);
                }
 
                /* if time has passed, do one last check and then we're done.
@@ -2331,8 +2335,8 @@ arping_main(int argc, char **argv)
                                 "arping: clock_getres(CLOCK_MONOTONIC, ...): %s\n",
                                 strerror(errno));
                 } else {
-                        printf("arping: clock_getres() = %lds %ldns\n",
-                               (long)ts.tv_sec, (long)ts.tv_nsec);
+                        printf("arping: clock_getres() = %"PRIdMAX"s %"PRIdMAX"ns\n",
+                               (intmax_t)ts.tv_sec, (intmax_t)ts.tv_nsec);
                 }
 #else
                 printf("arping: Using gettimeofday() for time measurements\n");
