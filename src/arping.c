@@ -252,6 +252,25 @@ static volatile sig_atomic_t time_to_die = 0;
 void drop_landlock();
 void drop_no_new_privs();
 
+void
+xsnprintf(char *buf, size_t size, const char* fmt, ...)
+{
+        va_list ap;
+        va_start(ap, fmt);
+
+        const int ret = vsnprintf(buf, size, fmt, ap);
+        if (ret < 0) {
+                fprintf(stderr, "arping: snprintf() returned negative: %d\n", ret);
+                exit(1);
+        }
+        if (cast_int_size(ret, "snprintf return %u not castable to size_t", ret) >= size) {
+                fprintf(stderr, "arping: snprintf() overflow: %d >= %zd\n", ret, size);
+                exit(1);
+        }
+
+        va_end(ap);
+}
+
 static float
 must_parse_float(const char* in, const char* what)
 {
@@ -358,7 +377,7 @@ static unsigned long
 parse_ulong(const char* in, const char* what, char* ebuf, size_t ebuflen)
 {
         if (!*in) {
-                snprintf(ebuf, ebuflen, "arping: %s: value was empty\n", what);
+                xsnprintf(ebuf, ebuflen, "arping: %s: value was empty\n", what);
                 exit(1);
         }
         char *endp = NULL;
@@ -371,18 +390,18 @@ parse_ulong(const char* in, const char* what, char* ebuf, size_t ebuflen)
         const long ret = strtol(in, &endp, 0);
 #endif
         if (errno) {
-                snprintf(ebuf, ebuflen, "arping: %s: parsing <%s> as integer: %s\n",
+                xsnprintf(ebuf, ebuflen, "arping: %s: parsing <%s> as integer: %s\n",
                         what, in, strerror(errno));
                 exit(1);
         }
         if (*endp) {
-                snprintf(ebuf, ebuflen,
+                xsnprintf(ebuf, ebuflen,
                         "arping: %s: failed parsing <%s> as integer\n",
                         what, in);
                 exit(1);
         }
         if (ret < 0) {
-                snprintf(ebuf, ebuflen,
+                xsnprintf(ebuf, ebuflen,
                         "arping: %s: <%s> is negative\n", what, in);
                 exit(1);
         }
@@ -706,15 +725,15 @@ try_pcap_open_live(const char *device, int snaplen, int to_ms, char *errbuf)
                 goto err;
         }
         if ((rc = pcap_set_snaplen(pcap, snaplen))) {
-                snprintf(errbuf, PCAP_ERRBUF_SIZE, "pcap_set_snaplen(): %s", pcap_statustostr(rc));
+                xsnprintf(errbuf, PCAP_ERRBUF_SIZE, "pcap_set_snaplen(): %s", pcap_statustostr(rc));
                 goto err;
         }
         if ((rc = pcap_set_promisc(pcap, promisc))) {
-                snprintf(errbuf, PCAP_ERRBUF_SIZE, "pcap_set_promisc(): %s", pcap_statustostr(rc));
+                xsnprintf(errbuf, PCAP_ERRBUF_SIZE, "pcap_set_promisc(): %s", pcap_statustostr(rc));
                 goto err;
         }
         if ((rc = pcap_set_timeout(pcap, to_ms))) {
-                snprintf(errbuf, PCAP_ERRBUF_SIZE, "pcap_set_timeout(): %s", pcap_statustostr(rc));
+                xsnprintf(errbuf, PCAP_ERRBUF_SIZE, "pcap_set_timeout(): %s", pcap_statustostr(rc));
                 goto err;
         }
 
@@ -745,9 +764,9 @@ try_pcap_open_live(const char *device, int snaplen, int to_ms, char *errbuf)
 #endif
         if ((rc = pcap_activate(pcap))) {
                 if (timestamp_type) {
-                        snprintf(errbuf, PCAP_ERRBUF_SIZE, "pcap_activate(tstype=\"%s\"): %s. Try without setting timestamp type.", timestamp_type, pcap_statustostr(rc));
+                        xsnprintf(errbuf, PCAP_ERRBUF_SIZE, "pcap_activate(tstype=\"%s\"): %s. Try without setting timestamp type.", timestamp_type, pcap_statustostr(rc));
                 } else {
-                        snprintf(errbuf, PCAP_ERRBUF_SIZE, "pcap_activate(): %s", pcap_statustostr(rc));
+                        xsnprintf(errbuf, PCAP_ERRBUF_SIZE, "pcap_activate(): %s", pcap_statustostr(rc));
                 }
                 goto err;
         }
@@ -804,12 +823,12 @@ do_pcap_open_live(const char *device, int snaplen, int to_ms, char *errbuf)
                 return ret;
         }
 
-        snprintf(buf, sizeof(buf), "/dev/%s", device);
+        xsnprintf(buf, sizeof(buf), "/dev/%s", device);
         if ((ret = try_pcap_open_live(buf, snaplen, to_ms, errbuf))) {
                 return ret;
         }
 
-        snprintf(buf, sizeof(buf), "/dev/net/%s", device);
+        xsnprintf(buf, sizeof(buf), "/dev/net/%s", device);
         if ((ret = try_pcap_open_live(buf, snaplen, to_ms, errbuf))) {
                 return ret;
         }
@@ -955,7 +974,7 @@ getclock(struct timespec *ts)
  */
 static char*
 format_mac(const unsigned char* mac, char* buf, size_t bufsize) {
-        snprintf(buf, bufsize, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
+        xsnprintf(buf, bufsize, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
                 mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
         return buf;
 }
@@ -1239,23 +1258,23 @@ static char *ts2str(const struct timespec *tv, const struct timespec *tv2,
 	}
 	switch (exp) {
 	case 0:
-                snprintf(buf, bufsize, "%.3f nsec", f);
+                xsnprintf(buf, bufsize, "%.3f nsec", f);
 		break;
 	case 3:
-                snprintf(buf, bufsize, "%.3f usec", f);
+                xsnprintf(buf, bufsize, "%.3f usec", f);
 		break;
 	case 6:
-                snprintf(buf, bufsize, "%.3f msec", f);
+                xsnprintf(buf, bufsize, "%.3f msec", f);
 		break;
 	case 9:
-                snprintf(buf, bufsize, "%.3f sec", f);
+                xsnprintf(buf, bufsize, "%.3f sec", f);
 		break;
 	case 12:
-                snprintf(buf, bufsize, "%.3f sec", f*1000);
+                xsnprintf(buf, bufsize, "%.3f sec", f*1000);
 		break;
         default:
 		/* huh, uh, huhuh */
-                snprintf(buf, bufsize, "%.3fe%d sec", f, exp-9);
+                xsnprintf(buf, bufsize, "%.3fe%d sec", f, exp-9);
 	}
 	return buf;
 }
@@ -2530,10 +2549,10 @@ arping_main(int argc, char **argv)
 	if (mode == PINGIP) {
 		/* FIXME: better filter with addresses? */
                 if (vlan_tag >= 0 && !bug_pcap_vlan()) {
-                        snprintf(bpf_filter, sizeof(bpf_filter),
+                        xsnprintf(bpf_filter, sizeof(bpf_filter),
                                  "vlan %u and arp", vlan_tag);
                 } else {
-                        snprintf(bpf_filter, sizeof(bpf_filter), "arp");
+                        xsnprintf(bpf_filter, sizeof(bpf_filter), "arp");
                 }
                 if (-1 == pcap_compile(pcap, &bp, bpf_filter, 0,
                                        PCAP_NETMASK_UNKNOWN)) {
@@ -2544,10 +2563,10 @@ arping_main(int argc, char **argv)
 	} else { /* ping mac */
 		/* FIXME: better filter with addresses? */
                 if (vlan_tag >= 0 && !bug_pcap_vlan()) {
-                        snprintf(bpf_filter, sizeof(bpf_filter),
+                        xsnprintf(bpf_filter, sizeof(bpf_filter),
                                  "vlan %u and icmp", vlan_tag);
                 } else {
-                        snprintf(bpf_filter, sizeof(bpf_filter), "icmp");
+                        xsnprintf(bpf_filter, sizeof(bpf_filter), "icmp");
                 }
                 if (-1 == pcap_compile(pcap, &bp, bpf_filter, 0,
                                        PCAP_NETMASK_UNKNOWN)) {

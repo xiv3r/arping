@@ -65,7 +65,7 @@ arping_lookupdev(uint32_t srcip,
                 if (verbose) {
                         printf("arping: getifaddrs(): %s\n", strerror(errno));
                 }
-                snprintf(ebuf, LIBNET_ERRBUF_SIZE,
+                xsnprintf(ebuf, LIBNET_ERRBUF_SIZE,
                          "getifaddrs(): %s", strerror(errno));
                 goto out;
         }
@@ -108,7 +108,7 @@ arping_lookupdev(uint32_t srcip,
                         printf("arping: Failed to find iface using"
                                " getifaddrs().\n");
                 }
-                snprintf(ebuf, LIBNET_ERRBUF_SIZE,
+                xsnprintf(ebuf, LIBNET_ERRBUF_SIZE,
                          "No matching interface found using getifaddrs().");
         }
  out:

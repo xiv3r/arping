@@ -35,7 +35,7 @@
 const char *
 arping_lookupdev(uint32_t srcip, uint32_t dstip, char *ebuf)
 {
-        snprintf(ebuf, LIBNET_ERRBUF_SIZE,
+        xsnprintf(ebuf, LIBNET_ERRBUF_SIZE,
                  "arping_lookupdev() not implemented for this system.");
 	return NULL;
 }

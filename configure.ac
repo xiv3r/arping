@@ -51,6 +51,7 @@ sys/types.h \
 sys/param.h \
 sys/capability.h \
 stdint.h \
+stddef.h \
 libnet.h \
 win32/libnet.h \
 sys/random.h \

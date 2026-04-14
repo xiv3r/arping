@@ -59,21 +59,21 @@ arping_lookupdev(uint32_t srcip,
 	/*
 	 * Construct and run command
 	 */
-	snprintf(buf, 1023, "/sbin/ip route get %s from %s 2>&1",
+        xsnprintf(buf, 1023, "/sbin/ip route get %s from %s 2>&1",
 		 buf2, buf1);
 	if (!(f = popen(buf, "r"))) {
-                snprintf(ebuf, LIBNET_ERRBUF_SIZE,
+                xsnprintf(ebuf, LIBNET_ERRBUF_SIZE,
                          "popen(/sbin/ip): %s", strerror(errno));
 		goto failed;
 	}
 	if (0>(n = fread(buf, 1, sizeof(buf)-1, f))) {
-                snprintf(ebuf, LIBNET_ERRBUF_SIZE,
+                xsnprintf(ebuf, LIBNET_ERRBUF_SIZE,
                          "fread(/sbin/ip): %s", strerror(errno));
 		goto failed;
 	}
 	buf[n] = 0;
 	if (-1 == pclose(f)) {
-                snprintf(ebuf, LIBNET_ERRBUF_SIZE,
+                xsnprintf(ebuf, LIBNET_ERRBUF_SIZE,
                          "pclose(/sbin/ip): %s", strerror(errno));
 		goto failed;
 	}
@@ -88,7 +88,7 @@ arping_lookupdev(uint32_t srcip,
                 if (verbose) {
                         printf("arping: /sbin/ip output: %s\n", buf);
                 }
-                snprintf(ebuf, LIBNET_ERRBUF_SIZE,
+                xsnprintf(ebuf, LIBNET_ERRBUF_SIZE,
                          "\"dev \" not found in /sbin/ip output.");
 		goto failed;
 	}
@@ -100,7 +100,7 @@ arping_lookupdev(uint32_t srcip,
                 if (verbose) {
                         printf("arping: /sbin/ip output: %s\n", buf);
                 }
-                snprintf(ebuf, LIBNET_ERRBUF_SIZE,
+                xsnprintf(ebuf, LIBNET_ERRBUF_SIZE,
                          "interface not found in /sbin/ip output.");
 		goto failed;
 	}

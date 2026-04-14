@@ -436,7 +436,7 @@ START_TEST(strip_newline_test)
         int c;
         for (c = 0; tests[c][0]; c++){
                 char buf[128];
-                snprintf(buf, sizeof(buf), "%s", tests[c][0]);
+                xsnprintf(buf, sizeof(buf), "%s", tests[c][0]);
                 strip_newline(buf);
                 fail_unless(!strcmp(buf, tests[c][1]));
         }

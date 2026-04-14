@@ -94,13 +94,13 @@ arping_lookupdev(uint32_t srcip,
         /* Allocate buffer and retrieve data. */
         for (c = 0;;) {
                 if (sysctl(mib, 6, NULL, &bufsize, NULL, 0) < 0) {
-                        snprintf(ebuf, LIBNET_ERRBUF_SIZE,
+                        xsnprintf(ebuf, LIBNET_ERRBUF_SIZE,
                                  "sysctl: get buffer size error: %s",
                                  strerror(errno));
                         goto failed;
                 }
                 if ((buf_memory = malloc(bufsize)) == NULL) {
-                        snprintf(ebuf, LIBNET_ERRBUF_SIZE,
+                        xsnprintf(ebuf, LIBNET_ERRBUF_SIZE,
                                  "malloc: error: %s", strerror(errno));
                         goto failed;
                 }
@@ -108,7 +108,7 @@ arping_lookupdev(uint32_t srcip,
                         break;
                 }
                 if (errno != ENOMEM || ++c >= 10 ) {
-                        snprintf(ebuf, LIBNET_ERRBUF_SIZE,
+                        xsnprintf(ebuf, LIBNET_ERRBUF_SIZE,
                                  "sysctl: get ifaces error: %s",
                                  strerror(errno));
                         goto failed;
@@ -131,7 +131,7 @@ arping_lookupdev(uint32_t srcip,
 
                 struct if_msghdr *ifh = (struct if_msghdr *)buf;
                 if (ifh->ifm_type != RTM_IFINFO) {
-                        snprintf(ebuf, LIBNET_ERRBUF_SIZE,
+                        xsnprintf(ebuf, LIBNET_ERRBUF_SIZE,
                                  "Wrong data in NET_RT_IFLIST.");
                         return NULL;
                 }
@@ -229,7 +229,7 @@ arping_lookupdev(uint32_t srcip,
 
         if (match_count == 0 ) {
                 if (verbose) {
-                        snprintf(ebuf, LIBNET_ERRBUF_SIZE,
+                        xsnprintf(ebuf, LIBNET_ERRBUF_SIZE,
                                  "No interface found that matches"
                                  " specified IP.");
                 }

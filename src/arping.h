@@ -21,6 +21,10 @@
 #include <stdint.h>
 #endif
 
+#if HAVE_STDDEF_H
+#include <stddef.h>
+#endif
+
 #if HAVE_INTTYPES_H
 #include <inttypes.h>
 #endif
@@ -40,6 +44,7 @@ extern uint32_t dstip;
 extern unsigned int numrecvd;
 extern unsigned int numsent;
 
+void xsnprintf(char *buf, size_t size, const char* fmt, ...);
 void drop_seccomp(int libnet_fd);
 const char *
 arping_lookupdev(uint32_t srcip, uint32_t dstip, char *ebuf);

@@ -244,6 +244,27 @@ cast_int_uint16(int from, const char* fmt, ...)
     va_end(ap);
     return to;
 }
+size_t
+cast_int_size(int from, const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    cast_assert(from >= 0, "cast_int_size(%"PRIdMAX"): %s", (intmax_t)from, "need >= 0");
+    const size_t to = (size_t)from;
+    if (from != (int)to) {
+        fprintf(stderr, "arping: ");
+        if (fmt) {
+          vfprintf(stderr, fmt, ap);
+          fprintf(stderr, ": value won't fit in size_t");
+        } else {
+          fprintf(stderr, "cast_int_size(%"PRIdMAX"): %s", (intmax_t)from, "value won't fit in size_t\n");
+        }
+        fprintf(stderr, "\n");
+        exit(1);
+    }
+    va_end(ap);
+    return to;
+}
 int
 cast_long_int(long from, const char* fmt, ...)
 {

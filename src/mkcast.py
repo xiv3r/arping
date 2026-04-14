@@ -134,6 +134,7 @@ cast_assert(int must, const char* fmt, ...)
             ('int16_t', 'uint8_t'),
             ('int', 'unsigned int'),
             ('int', 'uint16_t'),
+            ('int', 'size_t'),
             ('long', 'int'),
             ('long', 'uint8_t'),
             ('unsigned long', 'gid_t'),
