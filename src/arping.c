@@ -1829,7 +1829,7 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
                 break;
         case NORMAL:
                 printf("%u bytes from %s (%s): icmp_seq=%hu time=%s", h->len,
-                       libnet_addr2name4(*(uint32_t*)&hip->ip_src, 0),
+                       libnet_addr2name4(hip->ip_src.s_addr, 0),
                        format_mac(pkt_srcmac, buf, sizeof(buf)),
                        ntohs(hicmp->icmp_seq),
                        ts2str(&lastpacketsent, &arrival, buf2, sizeof(buf2)));
