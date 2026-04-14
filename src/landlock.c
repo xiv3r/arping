@@ -40,9 +40,11 @@
 static int ll_create_ruleset(const struct landlock_ruleset_attr *attr, size_t size, __u32 flags) {
     return syscall(SYS_landlock_create_ruleset, attr, size, flags);
 }
+/*
 static int ll_add_rule(int ruleset_fd, enum landlock_rule_type type, const void *rule_attr, __u32 flags) {
     return syscall(SYS_landlock_add_rule, ruleset_fd, type, rule_attr, flags);
 }
+*/
 static int ll_restrict_self(int ruleset_fd, __u32 flags) {
     return syscall(SYS_landlock_restrict_self, ruleset_fd, flags);
 }
@@ -105,7 +107,7 @@ drop_landlock()
                 fprintf(stderr, "arping: landlock failed to take effect\n");
                 closedir(de);
         } else if (errno != EACCES) {
-                fprintf(stderr, "arping: landlock caused error not EACCES: \n",
+                fprintf(stderr, "arping: landlock caused error not EACCES: %s\n",
                         strerror(errno));
         }
         if (verbose > 0) {
