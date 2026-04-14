@@ -1505,10 +1505,11 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
                 if (veth->vlan_tpi != htons(0x8100)) {
                         return;
                 }
+                const int packet_vlan = 0xfff & ntohs(veth->vlan_priority_c_vid);
                 if (verbose > 3) {
-                        printf("arping: ... is dot1q\n");
+                        printf("arping: ... is dot1q %d\n", packet_vlan);
                 }
-                if ((veth->vlan_priority_c_vid & 0xfff) == vlan_tag) {
+                if (packet_vlan != vlan_tag) {
                         return;
                 }
                 if (verbose > 3) {
