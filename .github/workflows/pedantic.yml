@@ -11,3 +11,7 @@ jobs:
         run:  sudo apt-get install -y libnet1-dev libpcap-dev automake autoconf check tcpdump openssh-server
       - name: Pedantic check
         run: ./extra/pedantic.sh
+      - name: Install optional dependencies
+        run:  sudo apt-get install -y libcap-dev libseccomp-dev
+      - name: Pedantic check with optional dependencies
+        run: ./extra/pedantic.sh
