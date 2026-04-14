@@ -1468,7 +1468,7 @@ pingip_send()
 void
 pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet)
 {
-        const unsigned char *pkt_srcmac;
+        unsigned char pkt_srcmac[ETH_ALEN];
         const char* arpdata = NULL;
         int ethernet_header_size = LIBNET_ETH_H;
         struct libnet_arp_hdr harp;
@@ -1493,7 +1493,7 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
                 }
                 ethernet_header_size = LIBNET_802_1Q_H;
                 memcpy(&veth, (void*)packet, LIBNET_802_1Q_H);
-                pkt_srcmac = veth.vlan_shost;
+                memcpy(pkt_srcmac, veth.vlan_shost, ETH_ALEN);
 
                 if (veth.vlan_tpi != htons(0x8100)) {
                         return;
@@ -1518,8 +1518,9 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
                 if (verbose > 3) {
                         printf("arping: ... good length\n");
                 }
-                struct libnet_802_3_hdr *heth = (void*)packet;
-		pkt_srcmac = heth->_802_3_shost;
+                struct libnet_802_3_hdr heth;
+                memcpy(&heth, (void*)packet, sizeof(heth));
+                memcpy(pkt_srcmac, heth._802_3_shost, ETH_ALEN);
         }
 
         // Set up aligned structs for further checking.
