@@ -1948,6 +1948,11 @@ ping_recv(pcap_t *pcap, uint32_t packetwait, pcap_handler func)
                        pcap_geterr(pcap));
                exit(1);
        }
+       if (fd >= FD_SETSIZE) {
+               fprintf(stderr, "arping: pcap fd %d >= FD_SETSIZE (%d). Use a modern OS or report a bug.\n",
+                       fd, FD_SETSIZE);
+               exit(1);
+       }
        old_received = numrecvd;
 
        for (;!done;) {
