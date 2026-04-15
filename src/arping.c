@@ -2297,6 +2297,8 @@ arping_main(int argc, char **argv)
                                         val);
                                 exit(1);
                         }
+                        // This overflows (asserts) if the user tries to wait
+                        // more than unsigned max number of us. And that's fine.
                         packetwait = cast_float_unsigned(1000000.0f * val);
                         break;
                 }
