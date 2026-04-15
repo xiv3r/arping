@@ -1895,6 +1895,7 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
                 printf("arping: ... correct payload suffix\n");
         }
 
+        // TODO: use timestamp from packet payload instead of last packet sent.
         update_stats(timespec2dbl(&arrival) - timespec2dbl(&lastpacketsent));
         if (beep) {
                 printf("\a");
@@ -2769,13 +2770,18 @@ arping_main(int argc, char **argv)
                        (succ < 0.0) ? (numrecvd - numsent): 0);
                 if (numrecvd) {
                         double avg = stats_total_time / numrecvd;
+                        double stddev2 = stats_total_sq_time/numrecvd-avg*avg;
+                        if (stddev2 < 0.0) {
+                                // Due to floating point precision, this could be negative.
+                                stddev2 = 0.0;
+                        }
+
                         printf("rtt min/avg/max/std-dev = "
                                "%.3f/%.3f/%.3f/%.3f ms",
                                1000*stats_min_time,
                                1000*avg,
                                1000*stats_max_time,
-                               1000*sqrt(stats_total_sq_time/numrecvd
-                                         -avg*avg));
+                               1000*sqrt(stddev2));
                 }
                 printf("\n");
 	}
