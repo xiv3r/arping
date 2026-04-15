@@ -35,17 +35,18 @@
 #endif
 
 #include "arping.h"
+#include "cast.h"
 
 #ifdef ACTUALLY_USE_LANDLOCK
 static int ll_create_ruleset(const struct landlock_ruleset_attr *attr, size_t size, __u32 flags) {
-    return syscall(SYS_landlock_create_ruleset, attr, size, flags);
+        return cast_long_int(syscall(SYS_landlock_create_ruleset, attr, size, flags), NULL);
 }
 /*
 static int ll_add_rule(int ruleset_fd, enum landlock_rule_type type, const void *rule_attr, __u32 flags) {
     return syscall(SYS_landlock_add_rule, ruleset_fd, type, rule_attr, flags);
 }
 */
-static int ll_restrict_self(int ruleset_fd, __u32 flags) {
+static long ll_restrict_self(int ruleset_fd, __u32 flags) {
     return syscall(SYS_landlock_restrict_self, ruleset_fd, flags);
 }
 #endif
@@ -116,3 +117,11 @@ drop_landlock()
 #endif
 }
 
+/* ---- Emacs Variables ----
+ * Local Variables:
+ * c-basic-offset: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vim: ts=8 sw=8
+ */

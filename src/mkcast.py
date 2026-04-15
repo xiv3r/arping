@@ -143,6 +143,7 @@ cast_assert(int must, const char* fmt, ...)
             ('int', 'int16_t'),
             ('long', 'unsigned long'),
             ('long', 'unsigned int'),
+            ('int', 'unsigned long'),
     ]:
         keys = {
             'src': src,

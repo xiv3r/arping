@@ -79,7 +79,7 @@ seccomp_allow_fd(scmp_filter_ctx ctx, const char* name, int fd)
                 return;
         }
         if (seccomp_rule_add(ctx, SCMP_ACT_ALLOW, resolved, 1,
-                             SCMP_A0(SCMP_CMP_EQ, fd))) {
+                             SCMP_A0(SCMP_CMP_EQ, cast_int_ulong(fd, NULL)))) {
                 fprintf(stderr, "arping: seccomp_rule_add(%s for fd %d)",
                         name, fd);
         }

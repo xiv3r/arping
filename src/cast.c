@@ -430,3 +430,24 @@ cast_long_uint(long from, const char* fmt, ...)
     va_end(ap);
     return to;
 }
+unsigned long
+cast_int_ulong(int from, const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    cast_assert(from >= 0, "cast_int_ulong(%"PRIdMAX"): %s", (intmax_t)from, "need >= 0");
+    const unsigned long to = (unsigned long)from;
+    if (from != (int)to) {
+        fprintf(stderr, "arping: ");
+        if (fmt) {
+          vfprintf(stderr, fmt, ap);
+          fprintf(stderr, ": value won't fit in unsigned long");
+        } else {
+          fprintf(stderr, "cast_int_ulong(%"PRIdMAX"): %s", (intmax_t)from, "value won't fit in unsigned long\n");
+        }
+        fprintf(stderr, "\n");
+        exit(1);
+    }
+    va_end(ap);
+    return to;
+}
