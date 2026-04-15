@@ -971,6 +971,7 @@ sigint(int i)
 static void
 getclock(struct timespec *ts)
 {
+        memset(ts, 0, sizeof(struct timespec));
 #if HAVE_CLOCK_MONOTONIC
         static int clock_gettime_failed = 0;
         if (!clock_gettime_failed) {
