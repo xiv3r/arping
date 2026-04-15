@@ -115,6 +115,8 @@ drop_seccomp(int libnet_fd)
         }
 
         // Other.
+        seccomp_allow(ctx, "read");
+        seccomp_allow(ctx, "recvfrom");
         seccomp_allow(ctx, "select");
         seccomp_allow(ctx, "pselect6");
         seccomp_allow(ctx, "newfstatat");
