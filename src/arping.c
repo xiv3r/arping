@@ -1145,50 +1145,63 @@ print_library_versions()
  * [0-9a-fA-F], so I'll stay away from it.
  *
  */
-static int is_mac_addr(const char *p)
+int is_mac_addr(const char *p)
 {
-	/* cisco-style */
-	if (3*5-1 == strlen(p)) {
+        const size_t len = strlen(p);
+	/* cisco-style hhhh.hhhh.hhhh */
+        if (len == 14) {
 		unsigned int c;
-		for (c = 0; c < strlen(p); c++) {
+                for (c = 0; c < 14; c++) {
 			if ((c % 5) == 4) {
 				if ('.' != p[c]) {
-					goto checkcolon;
+                                        return 0;
 				}
 			} else {
 				if (!isxdigit(p[c])) {
-					goto checkcolon;
+                                        return 0;
 				}
 			}
 		}
 		return 1;
 	}
-	/* windows-style */
-	if (6*3-1 == strlen(p)) {
-		unsigned int c;
-		for (c = 0; c < strlen(p); c++) {
-			if ((c % 3) == 2) {
-				if ('-' != p[c]) {
-					goto checkcolon;
-				}
-			} else {
-				if (!isxdigit(p[c])) {
-					goto checkcolon;
-				}
-			}
-		}
-		return 1;
-	}
+        if (len != 17) {
+                // Windows and unix ones are 17 characters.
+                return 0;
+        }
 
- checkcolon:
-	/* unix */
-	return strchr(p, ':') ? 1 : 0;
+	/* windows-style xx-xx-xx-xx-xx-xx */
+        unsigned int c;
+        for (c = 0; c < 17; c++) {
+                if ((c % 3) == 2) {
+                        if ('-' != p[c]) {
+                                goto checkunix;
+                        }
+                } else {
+                        if (!isxdigit(p[c])) {
+                                goto checkunix;
+                        }
+                }
+        }
+        return 1;
+
+checkunix:
+        /* unix xx:xx:xx:xx:xx:xx */
+        for (c = 0; c < 17; c++) {
+                if ((c % 3) == 2) {
+                        if (':' != p[c]) {
+                                return 0;
+                        }
+                } else {
+                        if (!isxdigit(p[c])) {
+                                return 0;
+                        }
+                }
+        }
+        return 1;
 }
 
 /**
  * parse mac address.
- *
- * TODO: reject strings with garbage in the end.
  *
  * return 1 on success.
  */
@@ -1196,19 +1209,30 @@ int
 get_mac_addr(const char *in, uint8_t *out)
 {
         const char *formats[] = {
-                "%x:%x:%x:%x:%x:%x",
-                "%2x%x.%2x%x.%2x%x",
-                "%x-%x-%x-%x-%x-%x",
+                "%x:%x:%x:%x:%x:%x%n",
+                "%2x%x.%2x%x.%2x%x%n",
+                "%x-%x-%x-%x-%x-%x%n",
                 NULL,
         };
+        if (!is_mac_addr(in)) {
+                return 0;
+        }
         int c;
         for (c = 0; formats[c]; c++) {
                 unsigned int n[6];
+                int endp = 0;
                 if (6 == sscanf(in, formats[c],
-                                &n[0], &n[1], &n[2], &n[3], &n[4], &n[5])) {
+                                &n[0], &n[1], &n[2], &n[3], &n[4], &n[5],
+                                &endp)) {
                         int i;
+                        if (in[endp] != '\0') {
+                                return 0;
+                        }
                         for (i = 0; i < 6; i++) {
-                                out[i] = n[i] & 0xff;
+                                if (n[i] > 0xff) {
+                                        return 0;
+                                }
+                                out[i] = (uint8_t)n[i];
                         }
                         return 1;
                 }

@@ -40,7 +40,6 @@ extern libnet_t* libnet;
 extern int mock_libnet_lo_ok;
 extern int mock_libnet_null_ok;
 
-int get_mac_addr(const char *in, char *out);
 void strip_newline(char* s);
 
 
@@ -468,7 +467,7 @@ START_TEST(get_mac_addr_success)
         };
         int c;
         for (c = 0; tests[c][0]; c++){
-                char buf[6];
+                uint8_t buf[6];
                 fail_unless(get_mac_addr(tests[c][0], buf));
                 fail_unless(!memcmp(buf, tests[c][1], 6));
         }
@@ -481,12 +480,47 @@ START_TEST(get_mac_addr_fail)
                 "blaha",
                 "11:22:33:44:55",
                 "11:22:33:44:55:zz",
+                "00:11:22:33:44:55:66",
+                "00:11:22:33:44:55garbage",
+                "112233:44:55:66:77:88",
+                "123.456.789.0ab",
+                "100:11:22:33:44:55",
                 NULL,
         };
         int c;
         for (c = 0; tests[c]; c++){
-                char buf[6];
+                uint8_t buf[6];
                 fail_if(get_mac_addr(tests[c], buf));
+        }
+} END_TEST
+
+START_TEST(is_mac_addr_test)
+{
+        struct {
+                const char* in;
+                int expected;
+        } tests[] = {
+                {"00:11:22:33:44:55", 1},
+                {"00-11-22-33-44-55", 1},
+                {"1234.5678.90ab", 1},
+                {"00:11:22:33:44:55:66", 0},
+                {"00:11:22:33:44:55garbage", 0},
+                {"112233:44:55:66:77:88", 0},
+                {"123.456.789.0ab", 0},
+                {"100:11:22:33:44:55", 0},
+                {"2001:db8::1", 0},
+                {"1.2.3.4:80", 0},
+                {"", 0},
+                {"blaha", 0},
+                {NULL, 0},
+        };
+        int c;
+        for (c = 0; tests[c].in; c++){
+                if (tests[c].expected) {
+                        fail_unless(is_mac_addr(tests[c].in));
+                } else {
+                        fail_if(is_mac_addr(tests[c].in));
+                }
         }
 } END_TEST
 
@@ -651,6 +685,7 @@ arping_suite(void)
         SIGH_LIBCHECK(strip_newline_test);
         SIGH_LIBCHECK(get_mac_addr_success);
         SIGH_LIBCHECK(get_mac_addr_fail);
+        SIGH_LIBCHECK(is_mac_addr_test);
         SIGH_LIBCHECK(libnet_init_good);
         SIGH_LIBCHECK(arg_maxcount_good);
         SIGH_LIBCHECK(arg_maxcount_hex);

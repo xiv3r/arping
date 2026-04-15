@@ -54,6 +54,8 @@ void sigint(int);
 const char *arping_lookupdev_default(uint32_t srcip, uint32_t dstip,
 				     char *ebuf);
 int arping_main(int argc, char **argv);
+int is_mac_addr(const char *p);
+int get_mac_addr(const char *in, uint8_t *out);
 
 
 void pingip_recv(const char *unused, struct pcap_pkthdr *h, const char* const packet);
