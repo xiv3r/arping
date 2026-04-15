@@ -2695,6 +2695,9 @@ arping_main(int argc, char **argv)
 	if (mode == PINGIP) {
 		int c;
 		for (c = 0; (maxcount < 0 || c < maxcount) && !time_to_die; c++) {
+                        if (c == INT_MAX) {
+                                --c;
+                        }
 			pingip_send();
                         const uint32_t w = wait_time(deadline, packetwait);
                         if (w == 0) {
@@ -2705,6 +2708,9 @@ arping_main(int argc, char **argv)
 	} else { /* PINGMAC */
 		int c;
 		for (c = 0; (maxcount < 0 || c < maxcount) && !time_to_die; c++) {
+                        if (c == INT_MAX) {
+                                --c;
+                        }
                         pingmac_send(cast_int_uint16(xrandom() & 0xffff, NULL),
                                      cast_int_uint16(c & 0xffff, NULL));
                         const uint32_t w = wait_time(deadline, packetwait);
