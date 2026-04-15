@@ -2316,7 +2316,6 @@ arping_main(int argc, char **argv)
                         "arping: failed to get %zu random bytes: %s\n",
                         payload_suffix_size,
                         strerror(errno));
-                free(payload_suffix);
         } else if (payload_suffix_size != cast_ssize_size(rc, NULL)) {
                 fprintf(stderr,
                         "arping: only got %zd out of %zu bytes for random suffix\n",
