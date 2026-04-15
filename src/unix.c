@@ -71,7 +71,9 @@ arping_lookupdev_default(uint32_t srcip, uint32_t dstip, char *ebuf)
                 // to be smart". If we wanted to be smart we would have used
                 // findif_*.c.
                 if (1) {
-                        ifname = strdup(t->name); // Memory leak.
+                        // Intentional memory leak. Caller may edit the string,
+                        // so do not fix this memory leak.
+                        ifname = strdup(t->name);
                         break;
                 }
 
