@@ -1320,9 +1320,10 @@ pingmac_send(uint16_t id, uint16_t seq)
 		sigint(0);
 	}
 
-	if (-1==(ipv4 = libnet_build_ipv4(LIBNET_IPV4_H
-                                          + LIBNET_ICMPV4_ECHO_H
-                                          + cast_size_uint16(padding_size, NULL),
+        if (-1 == (ipv4 = libnet_build_ipv4(
+                cast_size_uint16(
+                    LIBNET_IPV4_H + LIBNET_ICMPV4_ECHO_H + padding_size,
+                    NULL),
 					  0, /* ToS */
 					  id, /* id */
 					  0, /* frag */
