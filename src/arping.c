@@ -193,8 +193,8 @@ static const size_t payload_suffix_size = 4;
 //   MAC: 802.1q(16) + IPv4(20) + ICMPv4(4) + timespec(18?) + 4 = 62.
 //   IP: 802.1q(16) + ARP(8) + 2xaddr_pair = 44.
 // 100 is enough.
-static const size_t pcap_snaplen = 100;
-static const size_t pcap_timeout_ms = 10;
+static const int pcap_snaplen = 100;
+static const int pcap_timeout_ms = 10;
 
 /* If there were any libnet write failures, we return error. */
 static size_t libnet_write_failures = 0;
