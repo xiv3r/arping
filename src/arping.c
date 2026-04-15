@@ -2267,7 +2267,7 @@ arping_main(int argc, char **argv)
                                         val);
                                 exit(1);
                         }
-                        packetwait = cast_float_unsigned(1000000.0 * val);
+                        packetwait = cast_float_unsigned(1000000.0f * val);
                         break;
                 }
                 case 'z':
