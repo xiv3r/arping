@@ -1954,7 +1954,7 @@ fixup_timespec(struct timespec *tv)
 		tv->tv_sec--;
 		tv->tv_nsec += 1000000000;
 	}
-        while (tv->tv_nsec > 1000000000) {
+        while (tv->tv_nsec >= 1000000000) {
                 tv->tv_sec++;
                 tv->tv_nsec -= 1000000000;
         }
