@@ -1164,6 +1164,8 @@ static int is_mac_addr(const char *p)
 /**
  * parse mac address.
  *
+ * TODO: reject strings with garbage in the end.
+ *
  * return 1 on success.
  */
 int
@@ -1789,6 +1791,9 @@ pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
         if (verbose > 3) {
                 printf("arping: ... right src mac\n");
         }
+
+        // TODO: Even though we have a BPF filter, add checks for IP version and
+        // protocol fields.
 
         // IPv4 Address must be me (maybe).
         if (addr_must_be_same) {
