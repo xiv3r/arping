@@ -166,7 +166,7 @@ static const char *version = VERSION; /* from autoconf */
 libnet_t *libnet = 0;
 
 /*
- * Exit if dropping privs fails.
+ * Exit if dropping privs fails. Intentionally disabled for now.
  */
 static const int exit_on_drop_fail = 0;
 
