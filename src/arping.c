@@ -165,6 +165,11 @@ static const char *version = VERSION; /* from autoconf */
 
 libnet_t *libnet = 0;
 
+/*
+ * Exit if dropping privs fails.
+ */
+static const int exit_on_drop_fail = 0;
+
 /* Timestamp of last packet sent.
  * Used for timing, and assumes that reply is due to most recent sent query.
  */
@@ -500,19 +505,28 @@ drop_uid(uid_t uid, gid_t gid)
 {
         int fail = 0;
         if (setgroups(0, NULL)) {
-                if (verbose) {
+                if (exit_on_drop_fail) {
+                        fprintf(stderr, "arping: setgroups(0, NULL): %s\n", strerror(errno));
+                        exit(1);
+                } else if (verbose) {
                         printf("arping: setgroups(0, NULL): %s\n", strerror(errno));
                 }
                 fail++;
         }
         if (gid && setgid(gid)) {
-                if (verbose) {
+                if (exit_on_drop_fail) {
+                        fprintf(stderr, "arping: setgid(): %s\n", strerror(errno));
+                        exit(1);
+                } else if (verbose) {
                         printf("arping: setgid(): %s\n", strerror(errno));
                 }
                 fail++;
         }
         if (uid && setuid(uid)) {
-                if (verbose) {
+                if (exit_on_drop_fail) {
+                        fprintf(stderr, "arping: setuid(): %s\n", strerror(errno));
+                        exit(1);
+                } else if (verbose) {
                         printf("arping: setuid(): %s\n", strerror(errno));
                 }
                 fail++;
@@ -608,7 +622,16 @@ drop_privileges(const char* drop_group)
         uid_t uid = 0;
         gid_t gid = 0;
         if (!(pw = getpwnam(drop_user))) {
-                if (verbose) {
+                if (exit_on_drop_fail) {
+                        if (errno != 0) {
+                                fprintf(stderr, "arping: getpwnam(%s): %s\n",
+                                        drop_user, strerror(errno));
+                        } else {
+                                fprintf(stderr, "arping: getpwnam(%s): unknown user\n",
+                                        drop_user);
+                        }
+                        exit(1);
+                } else if (verbose) {
                         if (errno != 0) {
                                 printf("arping: getpwnam(%s): %s\n",
                                        drop_user, strerror(errno));
