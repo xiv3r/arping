@@ -88,7 +88,7 @@ def codegen(fc, fh):
 #endif
 unsigned cast_float_unsigned(float x);
 uint32_t cast_double_uint32(double x);
-void cast_assert(int must, const char* fmt, ...);
+void cast_assert(int must, const char* fmt, ...) __attribute__ ((format (printf, 2, 3)));
 """)
     fc.write("""
 #include "cast.h"
@@ -173,7 +173,8 @@ cast_assert(int must, const char* fmt, ...)
         else:
             keys['errstr'] = '"cast_{src_name}_{dst_name}(%"PRIuMAX"): %s", (uintmax_t)from'.format(**keys)
 
-        fh.write("{dst} cast_{src_name}_{dst_name}({src} from, const char* fmt, ...);\n".format(**keys))
+        fh.write("""{dst} cast_{src_name}_{dst_name}({src} from, const char* fmt, ...) __attribute__ ((format (printf, 2, 3)));
+""".format(**keys))
         fc.write("""
 {dst}
 cast_{src_name}_{dst_name}({src} from, const char* fmt, ...)
