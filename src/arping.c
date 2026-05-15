@@ -1518,10 +1518,10 @@ pingip_send()
  * \param packet  packet data
  */
 void
-pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet)
+pingip_recv(unsigned char *unused, const struct pcap_pkthdr *h, const unsigned char * const packet)
 {
         unsigned char pkt_srcmac[ETH_ALEN];
-        const char* arpdata = NULL;
+        const unsigned char* arpdata = NULL;
         int ethernet_header_size = LIBNET_ETH_H;
         struct libnet_arp_hdr harp;
         struct timespec arrival;
@@ -1738,7 +1738,7 @@ pingip_recv(const char *unused, struct pcap_pkthdr *h, const char * const packet
  * \param packet  packet data
  */
 void
-pingmac_recv(const char* unused, struct pcap_pkthdr *h, uint8_t *packet)
+pingmac_recv(unsigned char* unused, const struct pcap_pkthdr *h, const uint8_t *packet)
 {
         unsigned char pkt_dstmac[ETH_ALEN];
         unsigned char pkt_srcmac[ETH_ALEN];

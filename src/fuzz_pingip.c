@@ -35,12 +35,12 @@ int
 main()
 {
         const size_t maxpacket = 1500;
-        char* const packet = calloc(1, maxpacket);
+        unsigned char* const packet = calloc(1, maxpacket);
         size_t packet_size = 0;
 
         // Read packet.
         {
-                char* p = packet;
+                unsigned char* p = packet;
                 size_t size = maxpacket;
                 while (size > 0) {
                         const ssize_t n = read(STDIN_FILENO, p, size);

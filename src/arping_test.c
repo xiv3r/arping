@@ -246,7 +246,7 @@ START_TEST(pingip_uninteresting_packet)
         // Completely broken packet.
         packet = calloc(1, 1500);
         sout = capture(STDOUT_FILENO);
-        pingip_recv(NULL, &pkthdr, (char*)packet);
+        pingip_recv(NULL, &pkthdr, packet);
         stop_capture(sout);
         fail_unless(strlen(sout->buffer) == 0);
         fail_unless(prev_numrecvd == numrecvd);
@@ -258,7 +258,7 @@ START_TEST(pingip_uninteresting_packet)
         harp = (void*)((char*)packet + LIBNET_ETH_H);
         harp->ar_pro = 0;
         sout = capture(STDOUT_FILENO);
-        pingip_recv(NULL, &pkthdr, (char*)packet);
+        pingip_recv(NULL, &pkthdr, packet);
         stop_capture(sout);
         fail_unless(prev_numrecvd == numrecvd);
         fail_unless(strlen(sout->buffer) == 0);
@@ -270,7 +270,7 @@ START_TEST(pingip_uninteresting_packet)
         harp = (void*)((char*)packet + LIBNET_ETH_H);
         harp->ar_hrd = 0;
         sout = capture(STDOUT_FILENO);
-        pingip_recv(NULL, &pkthdr, (char*)packet);
+        pingip_recv(NULL, &pkthdr, packet);
         stop_capture(sout);
         fail_unless(prev_numrecvd == numrecvd);
         fail_unless(strlen(sout->buffer) == 0);
@@ -284,7 +284,7 @@ START_TEST(pingip_uninteresting_packet)
                 harp = (void*)((char*)packet + LIBNET_ETH_H);
                 memcpy((char*)harp + harp->ar_hln + LIBNET_ARP_H, &wrongip, 4);
                 sout = capture(STDOUT_FILENO);
-                pingip_recv(NULL, &pkthdr, (char*)packet);
+                pingip_recv(NULL, &pkthdr, packet);
                 stop_capture(sout);
                 fail_unless(prev_numrecvd == numrecvd);
                 fail_unless(strlen(sout->buffer) == 0);
@@ -296,7 +296,7 @@ START_TEST(pingip_uninteresting_packet)
         packet = mkpacket(&pkthdr);
         pkthdr.caplen = pkthdr.len = 41;
         sout = capture(STDOUT_FILENO);
-        pingip_recv(NULL, &pkthdr, (char*)packet);
+        pingip_recv(NULL, &pkthdr, packet);
         stop_capture(sout);
         fail_unless(prev_numrecvd == numrecvd);
         fail_unless(strlen(sout->buffer) == 0);
@@ -307,7 +307,7 @@ START_TEST(pingip_uninteresting_packet)
         packet = mkpacket(&pkthdr);
         pkthdr.caplen = 41;
         sout = capture(STDOUT_FILENO);
-        pingip_recv(NULL, &pkthdr, (char*)packet);
+        pingip_recv(NULL, &pkthdr, packet);
         stop_capture(sout);
         fail_unless(prev_numrecvd == numrecvd);
         fail_unless(strlen(sout->buffer) == 0);
@@ -341,7 +341,7 @@ START_TEST(pingip_uninteresting_packet)
                 pkthdr.len = 60;
                 pkthdr.caplen = 60;
                 sout = capture(STDOUT_FILENO);
-                pingip_recv(NULL, &pkthdr, (char*)packet);
+                pingip_recv(NULL, &pkthdr, packet);
                 stop_capture(sout);
                 fail_unless(strlen(sout->buffer) == 0, sout->buffer);
                 fail_unless(prev_numrecvd == numrecvd);
@@ -352,7 +352,7 @@ START_TEST(pingip_uninteresting_packet)
         packet = mkpacket(&pkthdr);
         ((struct libnet_arp_hdr*)((char*)packet + LIBNET_ETH_H))->ar_pln = 6;
         sout = capture(STDOUT_FILENO);
-        pingip_recv(NULL, &pkthdr, (char*)packet);
+        pingip_recv(NULL, &pkthdr, packet);
         stop_capture(sout);
         fail_unless(prev_numrecvd == numrecvd);
         fail_unless(strlen(sout->buffer) == 0);
@@ -402,7 +402,7 @@ START_TEST(pingip_interesting_packet)
                         "60 bytes from 77:88:99:aa:bb:cc (18.52.86.120): "
                         "index=0 time=";
         sout = capture(STDOUT_FILENO);
-        pingip_recv(NULL, &pkthdr, (char*)packet);
+        pingip_recv(NULL, &pkthdr, packet);
         stop_capture(sout);
 
         char* emsg = NULL;
@@ -416,7 +416,7 @@ START_TEST(pingip_interesting_packet)
         // Check numrecvd incremented.
         ck_assert_int_eq(numrecvd, prev_numrecvd + 1);
 
-        pingip_recv(NULL, &pkthdr, (char*)packet);
+        pingip_recv(NULL, &pkthdr, packet);
         // Check that numrecvd is incremented second time.
         ck_assert_int_eq(numrecvd,prev_numrecvd + 2);
 } END_TEST

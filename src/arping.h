@@ -58,5 +58,5 @@ int is_mac_addr(const char *p);
 int get_mac_addr(const char *in, uint8_t *out);
 
 
-void pingip_recv(const char *unused, struct pcap_pkthdr *h, const char* const packet);
-void pingmac_recv(const char *unused, struct pcap_pkthdr *h, uint8_t *packet);
+void pingip_recv(unsigned char *unused, const struct pcap_pkthdr *h, const unsigned char* const packet);
+void pingmac_recv(unsigned char *unused, const struct pcap_pkthdr *h, const uint8_t *packet);
