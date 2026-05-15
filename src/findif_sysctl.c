@@ -129,7 +129,14 @@ arping_lookupdev(uint32_t srcip,
                 char  tmpIfName[IFNAMSIZ];
                 int   i;
 
-                // TODO: check that he buffer is big enough.
+                // Check that remaining buffer is big enough.
+                if (buf + sizeof(struct if_msghdr) > lim) {
+                        if (verbose > 1) {
+                                fprintf("arping: More buffer available, but not enough.");
+                        }
+                        break;
+                }
+
                 struct if_msghdr *ifh = (struct if_msghdr *)buf;
                 if (ifh->ifm_type != RTM_IFINFO) {
                         xsnprintf(ebuf, LIBNET_ERRBUF_SIZE,
