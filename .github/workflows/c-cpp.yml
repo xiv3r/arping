@@ -13,6 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: apt-get update
+      run:  sudo apt-get update
     - name: Required dependencies
       run:  sudo apt-get install -y libnet1-dev libpcap-dev automake autoconf check tcpdump openssh-server
     - name: bootstrap
