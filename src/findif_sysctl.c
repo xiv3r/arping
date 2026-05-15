@@ -129,6 +129,7 @@ arping_lookupdev(uint32_t srcip,
                 char  tmpIfName[IFNAMSIZ];
                 int   i;
 
+                // TODO: check that he buffer is big enough.
                 struct if_msghdr *ifh = (struct if_msghdr *)buf;
                 if (ifh->ifm_type != RTM_IFINFO) {
                         xsnprintf(ebuf, LIBNET_ERRBUF_SIZE,
