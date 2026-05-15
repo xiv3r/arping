@@ -44,7 +44,7 @@ extern uint32_t dstip;
 extern unsigned int numrecvd;
 extern unsigned int numsent;
 
-void xsnprintf(char *buf, size_t size, const char* fmt, ...);
+void xsnprintf(char *buf, size_t size, const char* fmt, ...) __attribute__ ((format (printf, 3, 4)));
 void drop_seccomp(int libnet_fd);
 const char *
 arping_lookupdev(uint32_t srcip, uint32_t dstip, char *ebuf);
