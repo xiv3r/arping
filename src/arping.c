@@ -268,7 +268,7 @@ xsnprintf(char *buf, size_t size, const char* fmt, ...)
                 fprintf(stderr, "arping: snprintf() returned negative: %d\n", ret);
                 exit(1);
         }
-        if (cast_int_size(ret, "snprintf return %u not castable to size_t", ret) >= size) {
+        if (cast_int_size(ret, "snprintf return %d not castable to size_t", ret) >= size) {
                 fprintf(stderr, "arping: snprintf() overflow: %d >= %zu\n", ret, size);
                 exit(1);
         }
