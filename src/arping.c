@@ -1157,7 +1157,7 @@ int is_mac_addr(const char *p)
                                         return 0;
 				}
 			} else {
-				if (!isxdigit(p[c])) {
+				if (!isxdigit((unsigned char)p[c])) {
                                         return 0;
 				}
 			}
