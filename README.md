@@ -1,8 +1,6 @@
-arping/README
-
 # ARP Ping
 
-    By Thomas Habets <thomas@habets.se>
+By Thomas Habets <thomas@habets.se>
 
 * <http://www.habets.pp.se/synscan/>
 * <http://github.com/ThomasHabets/arping>
@@ -85,8 +83,7 @@ That being said:
 
 <http://www.habets.pp.se/synscan/files/arping-for-windows-not-compiled-by-me.exe>
 
-### Q: After compiling arping without any problem, i test it first with
-    localhost... but it doesn't respond. Isn't that strange?
+### Q: After compiling arping without any problem, i test it first with localhost... but it doesn't respond. Isn't that strange?
 
 Not really, as you can see by typing 'ifconfig' the lo (local) interface
 does not have a MAC address. It's not a physical device! MAC addresses are
@@ -139,14 +136,12 @@ Or more likely they were both included in your Linux distribution.
 The original libnet site
 was <http://packetfactory.openwall.net/projects/libnet/>, but is not updated.
 
-### Q: I get `libnet_get_ipaddr(): no error` when I run arping with IP (src or dst)
-    255.255.255.255.
+### Q: I get `libnet_get_ipaddr(): no error` when I run arping with IP (src or dst) 255.255.255.255.
 
 Use the `-b`/`-B` switches. Libnet sucks (ha ha only serious) and returns -1 for
 error == int32 encoded 255.255.255.255.
 
-### Q: I used to be able to use `-S 255.255.255.255`, now it fails. What's going on?
-    (or: Why can't I arping 255.255.255.255?)
+### Q: I used to be able to use `-S 255.255.255.255`, now it fails. What's going on? (or: Why can't I arping 255.255.255.255?)
 
 Argh! Why would you want to? Anyway, this one is due to libnets resolving,
 and my unwillingness to reimplement it (in a portable manner, ugh).
