@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build on OpenBSD
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Test in OpenBSD
       id: test
       uses: vmactions/openbsd-vm@v1
