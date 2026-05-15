@@ -132,7 +132,7 @@ arping_lookupdev(uint32_t srcip,
                 // Check that remaining buffer is big enough.
                 if (buf + sizeof(struct if_msghdr) > lim) {
                         if (verbose > 1) {
-                                fprintf("arping: More buffer available, but not enough.");
+                                fprintf(stderr, "arping: More buffer available, but not enough.\n");
                         }
                         break;
                 }
