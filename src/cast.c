@@ -13,7 +13,7 @@ cast_float_unsigned(float x)
     cast_assert(!isnan(x), "Tried casting %f to unsigned. It's nan", x);
     cast_assert(x >= 0.0f, "Tried casting %f to unsigned. It's not positive", x);
     // Due to rounding errors, avoid comparing close to the edge.
-    cast_assert(x <= (float)(INT_MAX - 1000), "Tried casting %f to unsigned. It's too big", x);
+    cast_assert(x <= (float)(UINT_MAX - 1000), "Tried casting %f to unsigned. It's too big", x);
     return (unsigned)x;
 }
 uint32_t
