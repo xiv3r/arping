@@ -158,6 +158,14 @@ arping_lookupdev(uint32_t srcip,
 
                 /* Loop through all addresses of interface. */
                 while (buf < lim) {
+                        // Check that remaining buffer is big enough.
+                        if (buf + sizeof(struct ifa_msghdr) > lim) {
+                                if (verbose > 1) {
+                                        fprintf(stderr, "arping: More buffer available, but not enough.\n");
+                                }
+                                break;
+                        }
+
                         struct ifa_msghdr *ifht = (struct ifa_msghdr *)buf;
                         char*  addrptr;
                         struct sockaddr_in *if_addr = NULL;
@@ -178,6 +186,12 @@ arping_lookupdev(uint32_t srcip,
 
                         /* Loop through all the address attributes. */
                         for (c=1; c < (1<<RTAX_MAX); c<<=1) {
+                                if (addrptr + SA_SIZE((struct sockaddr*)sa) > lim) {
+                                        if (verbose > 1) {
+                                                fprintf(stderr, "arping: More buffer available, but not enough.\n");
+                                        }
+                                        break;
+                                }
                                 size_t len;
                                 struct sockaddr_in *sa;
                                 sa = addrptr;
