@@ -31,10 +31,11 @@ jobs:
       run: id
     - name: sudo id
       run: sudo id
-    - name: ping default gateway
+    - name: Find default gateway
       run: |
-        set -ueo pipefail
         GW="$(route -n get default | awk '/gateway:/ {print $2}')"
-        echo "Pinging $GW"
-        sudo ./src/arping -c 1 "$GW"
-        sudo ./src/arping -c 1 -vvvvvvv "$GW"
+        echo "ARPING_GW=$GW" >> "$GITHUB_ENV"
+    - name: ping default gateway
+      run: sudo ./src/arping -c 1 "$ARPING_GW"
+    - name: ping default gw verbosely
+      run: sudo ./src/arping -c 1 -vvvvvvv "$ARPING_GW"
