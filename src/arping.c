@@ -429,11 +429,11 @@ xgetrandom(void *buf, const size_t buflen, const unsigned int flags)
 #endif
 }
 
-static long int
-xrandom() {
+static uint16_t
+xrandom16() {
         const int maxtry = 10;
         for (int c = 0; c < maxtry; c++) {
-                long int ret;
+                uint16_t ret;
                 const ssize_t rc = xgetrandom(&ret, sizeof(ret), 0);
                 if (rc == -1) {
                         fprintf(stderr, "arping: failed to get random bytes: %s\n", strerror(errno));
@@ -2742,7 +2742,7 @@ arping_main(int argc, char **argv)
                         if (c == INT_MAX) {
                                 --c;
                         }
-                        pingmac_send(cast_int_uint16(xrandom() & 0xffff, NULL),
+                        pingmac_send(xrandom16(),
                                      cast_int_uint16(c & 0xffff, NULL));
                         const uint32_t w = wait_time(deadline, packetwait);
                         if (w == 0) {
