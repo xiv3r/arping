@@ -1177,7 +1177,7 @@ int is_mac_addr(const char *p)
                                 goto checkunix;
                         }
                 } else {
-                        if (!isxdigit(p[c])) {
+                        if (!isxdigit((unsigned char)p[c])) {
                                 goto checkunix;
                         }
                 }
@@ -1192,7 +1192,7 @@ checkunix:
                                 return 0;
                         }
                 } else {
-                        if (!isxdigit(p[c])) {
+                        if (!isxdigit((unsigned char)p[c])) {
                                 return 0;
                         }
                 }
