@@ -12,7 +12,8 @@ cast_float_unsigned(float x)
 {
     cast_assert(!isnan(x), "Tried casting %f to unsigned. It's nan", x);
     cast_assert(x >= 0.0f, "Tried casting %f to unsigned. It's not positive", x);
-    cast_assert(x <= (float)UINT_MAX, "Tried casting %f to unsigned. It's too big", x);
+    // Due to rounding errors, avoid comparing close to the edge.
+    cast_assert(x <= (float)(INT_MAX - 1000), "Tried casting %f to unsigned. It's too big", x);
     return (unsigned)x;
 }
 uint32_t
@@ -20,7 +21,8 @@ cast_double_uint32(double x)
 {
     cast_assert(!isnan(x), "Tried casting %f to uint32_t. It's nan", x);
     cast_assert(x >= 0.0, "Tried casting %f to uint32_t. It's not positive", x);
-    cast_assert(x <= (double)UINT32_MAX, "Tried casting %f to uint32_t. It's too big", x);
+    // Due to rounding errors, avoid comparing close to the edge.
+    cast_assert(x <= (double)(UINT32_MAX - 1000), "Tried casting %f to uint32_t. It's too big", x);
     return (uint32_t)x;
 }
 void
