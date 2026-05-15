@@ -2527,6 +2527,10 @@ arping_main(int argc, char **argv)
 			exit(1);
 		}
 		parm = strdup(libnet_addr2name4(dstip,0));
+                if (!parm) {
+			fprintf(stderr, "arping: strdup of hostname failed\n");
+			exit(1);
+                }
 	}
 
 	/*
