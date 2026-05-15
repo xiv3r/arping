@@ -999,7 +999,9 @@ getclock(struct timespec *ts)
 static char*
 format_mac(const unsigned char* mac, char* buf, size_t bufsize) {
         xsnprintf(buf, bufsize, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
-                mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+                (unsigned)mac[0], (unsigned)mac[1],
+                (unsigned)mac[2], (unsigned)mac[3],
+                (unsigned)mac[4], (unsigned)mac[5]);
         return buf;
 }
 
