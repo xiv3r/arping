@@ -25,11 +25,16 @@ jobs:
       run: make
     - name: test
       run: ./src/arping --help
+    - name: netstat
+      run: netstat -nr
+    - name: id
+      run: id
+    - name: sudo id
+      run: sudo id
     - name: ping default gateway
       run: |
         set -ueo pipefail
-        netstat -nr
         GW="$(route -n get default | awk '/gateway:/ {print $2}')"
         echo "Pinging $GW"
-        ./src/arping -c 1 "$GW"
-        ./src/arping -c 1 -vvvvvvv "$GW"
+        sudo ./src/arping -c 1 "$GW"
+        sudo ./src/arping -c 1 -vvvvvvv "$GW"
