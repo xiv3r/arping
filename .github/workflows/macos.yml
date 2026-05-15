@@ -25,3 +25,11 @@ jobs:
       run: make
     - name: test
       run: ./src/arping --help
+    - name: ping default gateway
+      run: |
+        set -ueo pipefail
+        netstat -nr
+        GW="$(route -n get default | awk '/gateway:/ {print $2}')"
+        echo "Pinging $GW"
+        ./src/arping -c 1 "$GW"
+        ./src/arping -c 1 -vvvvvvv "$GW"
