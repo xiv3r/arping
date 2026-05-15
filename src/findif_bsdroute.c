@@ -75,6 +75,7 @@ arping_lookupdev(uint32_t srcip,
 	}
 	buf[n] = 0;
 	if (-1 == pclose(f)) {
+                f = NULL;
                 xsnprintf(ebuf, LIBNET_ERRBUF_SIZE,
                          "pclose(/sbin/route): %s", strerror(errno));
 		goto failed;
