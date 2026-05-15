@@ -35,3 +35,7 @@ jobs:
           ./bootstrap.sh
           ./configure LDFLAGS=-L/usr/local/lib CPPFLAGS=-I/usr/local/include/libnet-1.1
           make
+          GW="$(route -n show | awk '$1 == "default" { print $2; exit }')"
+          id
+          ./src/arping -c 1 "$GW"
+          ./src/arping -vvvvvvv -c 1 "$GW"
