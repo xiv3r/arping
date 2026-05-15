@@ -269,7 +269,7 @@ xsnprintf(char *buf, size_t size, const char* fmt, ...)
                 exit(1);
         }
         if (cast_int_size(ret, "snprintf return %u not castable to size_t", ret) >= size) {
-                fprintf(stderr, "arping: snprintf() overflow: %d >= %zd\n", ret, size);
+                fprintf(stderr, "arping: snprintf() overflow: %d >= %zu\n", ret, size);
                 exit(1);
         }
 
@@ -440,7 +440,7 @@ xrandom() {
                         continue;
                 }
                 if (sizeof(ret) != rc) {
-                        fprintf(stderr, "arping: got too few random bytes %zd, want %zd\n", rc, sizeof(ret));
+                        fprintf(stderr, "arping: got too few random bytes %zd, want %zu\n", rc, sizeof(ret));
                         continue;
                 }
                 return ret;
@@ -532,8 +532,8 @@ drop_uid(uid_t uid, gid_t gid)
                 fail++;
         }
         if (!fail && verbose > 1) {
-                printf("arping: Successfully dropped uid/gid to %d/%d.\n",
-                       uid, gid);
+                printf("arping: Successfully dropped uid/gid to %lld/%lld.\n",
+                       cast_uid_longlong(uid, NULL), cast_gid_longlong(gid, NULL));
         }
 }
 
@@ -1751,7 +1751,7 @@ pingmac_recv(unsigned char* unused, const struct pcap_pkthdr *h, const uint8_t *
         assert(packet);
 
 	if(verbose>2) {
-                printf("arping: received response for mac ping len=%d caplen=%d\n",
+                printf("arping: received response for mac ping len=%u caplen=%u\n",
                        h->len, h->caplen);
 	}
 
@@ -2642,7 +2642,7 @@ arping_main(int argc, char **argv)
 		/* FIXME: better filter with addresses? */
                 if (vlan_tag >= 0 && !bug_pcap_vlan()) {
                         xsnprintf(bpf_filter, sizeof(bpf_filter),
-                                 "vlan %u and arp", vlan_tag);
+                                 "vlan %"PRId16" and arp", vlan_tag);
                 } else {
                         xsnprintf(bpf_filter, sizeof(bpf_filter), "arp");
                 }
@@ -2656,7 +2656,7 @@ arping_main(int argc, char **argv)
 		/* FIXME: better filter with addresses? */
                 if (vlan_tag >= 0 && !bug_pcap_vlan()) {
                         xsnprintf(bpf_filter, sizeof(bpf_filter),
-                                 "vlan %u and icmp", vlan_tag);
+                                 "vlan %"PRId16" and icmp", vlan_tag);
                 } else {
                         xsnprintf(bpf_filter, sizeof(bpf_filter), "icmp");
                 }

@@ -84,7 +84,11 @@ cast_size_ssize(size_t from, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    cast_assert(from <= SSIZE_MAX, "cast_size_ssize(%"PRIuMAX"): %s", (uintmax_t)from, "wrapped after casting");
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
+    cast_assert(from <= SSIZE_MAX, "cast_size_ssize(%"PRIuMAX"): %s", (uintmax_t)from, "value won't fit in ssize_t");
+#pragma GCC diagnostic pop
     const ssize_t to = (ssize_t)from;
     cast_assert(to >= 0, "cast_size_ssize(%"PRIuMAX"): %s", (uintmax_t)from, "wrapped after casting");
     if (from != (size_t)to) {
@@ -319,6 +323,58 @@ cast_ulong_gid(unsigned long from, const char* fmt, ...)
           fprintf(stderr, ": value won't fit in gid_t");
         } else {
           fprintf(stderr, "cast_ulong_gid(%"PRIuMAX"): %s", (uintmax_t)from, "value won't fit in gid_t\n");
+        }
+        fprintf(stderr, "\n");
+        exit(1);
+    }
+    va_end(ap);
+    return to;
+}
+long long
+cast_gid_longlong(gid_t from, const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
+    cast_assert(from <= LLONG_MAX, "cast_gid_longlong(%"PRIuMAX"): %s", (uintmax_t)from, "value won't fit in long long");
+#pragma GCC diagnostic pop
+    const long long to = (long long)from;
+    cast_assert(to >= 0, "cast_gid_longlong(%"PRIuMAX"): %s", (uintmax_t)from, "wrapped after casting");
+    if (from != (gid_t)to) {
+        fprintf(stderr, "arping: ");
+        if (fmt) {
+          vfprintf(stderr, fmt, ap);
+          fprintf(stderr, ": value won't fit in long long");
+        } else {
+          fprintf(stderr, "cast_gid_longlong(%"PRIuMAX"): %s", (uintmax_t)from, "value won't fit in long long\n");
+        }
+        fprintf(stderr, "\n");
+        exit(1);
+    }
+    va_end(ap);
+    return to;
+}
+long long
+cast_uid_longlong(uid_t from, const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
+    cast_assert(from <= LLONG_MAX, "cast_uid_longlong(%"PRIuMAX"): %s", (uintmax_t)from, "value won't fit in long long");
+#pragma GCC diagnostic pop
+    const long long to = (long long)from;
+    cast_assert(to >= 0, "cast_uid_longlong(%"PRIuMAX"): %s", (uintmax_t)from, "wrapped after casting");
+    if (from != (uid_t)to) {
+        fprintf(stderr, "arping: ");
+        if (fmt) {
+          vfprintf(stderr, fmt, ap);
+          fprintf(stderr, ": value won't fit in long long");
+        } else {
+          fprintf(stderr, "cast_uid_longlong(%"PRIuMAX"): %s", (uintmax_t)from, "value won't fit in long long\n");
         }
         fprintf(stderr, "\n");
         exit(1);

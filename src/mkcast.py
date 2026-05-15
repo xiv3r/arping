@@ -12,6 +12,7 @@ name_map = {
     'uint32_t': 'uint32',
 
     'gid_t': 'gid',
+    'uid_t': 'uid',
 
     'size_t': 'size',
     'ssize_t': 'ssize',
@@ -29,6 +30,8 @@ name_map = {
 def is_unsigned(t):
     if t[0] == 'u':
         return True
+    # We don't actually know the signedness of uid and gid. But worst case by
+    # C standard 6.3.1.3 at worst we get an implementation defined signal.
     if t in ('size_t', 'gid_t', 'uid_t'):
         return True
     return False
@@ -53,7 +56,10 @@ def type_max(t):
         'uint32_t': 'UINT32_MAX',
         'int': 'INT_MAX',
         'unsigned int': 'UINT_MAX',
+        'uid_t': 'UID_MAX',
         'gid_t': 'GID_MAX',
+        'uid_t': 'UID_MAX',
+        'long long': 'LLONG_MAX',
         'unsigned long': 'ULONG_MAX',
         'unsigned long long': 'ULONGLONG_MAX',
     }[t]
@@ -138,6 +144,8 @@ cast_assert(int must, const char* fmt, ...)
             ('long', 'int'),
             ('long', 'uint8_t'),
             ('unsigned long', 'gid_t'),
+            ('gid_t', 'long long'),
+            ('uid_t', 'long long'),
             ('long long', 'unsigned long long'),
             ('long long', 'unsigned int'),
             ('int', 'int16_t'),
@@ -175,7 +183,14 @@ cast_{src_name}_{dst_name}({src} from, const char* fmt, ...)
         if s2u:
             fc.write('    cast_assert(from >= 0, {errstr}, "need >= 0");\n'.format(**keys));
         if u2s:
-            fc.write('    cast_assert(from <= {dst_max}, {errstr}, "wrapped after casting");\n'.format(**keys));
+            # If the `from` type cannot represent `dst_max`, then GCC warns as
+            # it always being true. So suppressing that warning.
+            fc.write('''
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
+    cast_assert(from <= {dst_max}, {errstr}, "value won't fit in {dst}");
+#pragma GCC diagnostic pop
+'''.format(**keys));
 
         fc.write("    const {dst} to = ({dst})from;\n".format(**keys))
 
