@@ -18,9 +18,9 @@ jobs:
       with:
         usesh: true
         prepare: |
-          pkg_info -Q autoconf | sort -V | tail -1 | xargs pkg_add -v
-          pkg_info -Q libnet | sort -V | tail -1 | xargs pkg_add -v
-          pkg_info -Q automake | sort -V | tail -1 | xargs pkg_add -v
+          pkg_info -Q autoconf | grep ^autoconf-[0-9] | sort -V | tail -1 | xargs pkg_add -v
+          pkg_info -Q libnet | grep ^libnet-[0-9] | sort -V | tail -1 | xargs pkg_add -v
+          pkg_info -Q automake | grep ^automake-[0-9] | sort -V | tail -1 | xargs pkg_add -v
 
         run: |
           tree /home/runner/work
