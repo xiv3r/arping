@@ -46,7 +46,7 @@ main()
 
         verbose = 9;
         dstip = htonl(0x12345678);
-        pingip_recv(NULL, &pkthdr, packet);
+        pingmac_recv(NULL, &pkthdr, packet);
 
         free(packet);
         return 0;
