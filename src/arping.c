@@ -1501,7 +1501,7 @@ pingip_send()
                        (intmax_t)lastpacketsent.tv_sec,
                        (intmax_t)lastpacketsent.tv_nsec);
 	}
-        if (send_reply) {
+        if (send_reply && display != QUIET) {
                 printf("Sending ARP reply\n");
         }
 	if (-1 == libnet_write(libnet)) {
