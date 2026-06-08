@@ -2308,9 +2308,9 @@ arping_main(int argc, char **argv)
                         break;
 		case 'w':
                         deadline = must_parse_float(optarg, "deadline (-w)");
-                        if (deadline < 0) {
+                        if (deadline < 0 || !isfinite(deadline)) {
                                 fprintf(stderr,
-                                        "arping: deadline (-w) must be >=0. Is %f\n",
+                                        "arping: deadline (-w) must be finite value >=0. Is %f.\n",
                                         deadline);
                                 exit(1);
                         }
