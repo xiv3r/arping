@@ -22,6 +22,7 @@ src/.deps/
 src/Makefile
 src/Makefile.in
 src/arping
+src/fuzz_pingmac
 src/fuzz_pingip
 stamp-h1
 test-driver
