@@ -2499,6 +2499,11 @@ arping_main(int argc, char **argv)
 		usage(1);
 	}
 
+        if (send_reply && mode != PINGIP) {
+                fprintf(stderr, "arping: -P can't be used with MAC destination.\n");
+                exit(1);
+        }
+
 	/*
 	 *
 	 */
