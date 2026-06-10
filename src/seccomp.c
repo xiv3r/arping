@@ -123,6 +123,8 @@ drop_seccomp(int libnet_fd)
         seccomp_allow(ctx, "exit_group");
         seccomp_allow(ctx, "rt_sigreturn");
         seccomp_allow(ctx, "clock_gettime64");
+        seccomp_allow(ctx, "clock_nanosleep");
+        seccomp_allow(ctx, "nanosleep");
 
         // Load.
         if (seccomp_load(ctx)) {
