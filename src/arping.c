@@ -2466,6 +2466,10 @@ arping_main(int argc, char **argv)
         }
 
 	parm = (optind < argc) ? argv[optind] : NULL;
+        if (parm && dstip_given) {
+                fprintf(stderr, "arping: options (e.g. -B) not compatible with specifying a destination.\n");
+                exit(1);
+        }
 
         /* default to own IP address when doing -d */
         if (finddup && !parm) {
