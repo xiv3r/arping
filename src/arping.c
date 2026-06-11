@@ -650,8 +650,8 @@ drop_privileges(const char* drop_group)
                 gid = must_get_group(drop_group);
         }
         drop_fs_root();
-        drop_landlock();
         drop_no_new_privs();
+        drop_landlock();
         drop_uid(uid, gid);
         drop_capabilities();
 #ifdef HAVE_UNVEIL
