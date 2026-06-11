@@ -190,8 +190,11 @@ uint32_t dstip;
  */
 static uint8_t dstmac[ETH_ALEN];
 
-static char* payload_suffix = NULL;
-static const size_t payload_suffix_size = 4;
+/* For ping MAC mode, use some extra ICMP echo payload data to confirm it's our
+ * ping.
+ */
+char* payload_suffix = NULL;
+const size_t payload_suffix_size = 4;
 
 // Must be at least big enough to capture an entire packet.
 // Longest possible:

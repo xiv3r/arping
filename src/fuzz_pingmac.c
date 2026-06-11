@@ -13,6 +13,9 @@
 
 #include"arping.h"
 
+extern char* payload_suffix;
+extern size_t payload_suffix_size;
+
 int
 main()
 {
@@ -45,6 +48,7 @@ main()
         pkthdr.len = (uint32_t)packet_size;
         pkthdr.caplen = (uint32_t)packet_size;
 
+        payload_suffix = calloc(payload_suffix_size, 1);
         verbose = 9;
         dstip = htonl(0x12345678);
         pingmac_recv(NULL, &pkthdr, packet);
