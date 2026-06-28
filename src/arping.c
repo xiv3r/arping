@@ -386,7 +386,7 @@ parse_ulong(const char* in, const char* what, char* ebuf, size_t ebuflen)
 {
         if (!*in) {
                 xsnprintf(ebuf, ebuflen, "arping: %s: value was empty\n", what);
-                exit(1);
+                return 0;
         }
         char *endp = NULL;
         errno = 0;
@@ -400,18 +400,18 @@ parse_ulong(const char* in, const char* what, char* ebuf, size_t ebuflen)
         if (errno) {
                 xsnprintf(ebuf, ebuflen, "arping: %s: parsing <%s> as integer: %s\n",
                         what, in, strerror(errno));
-                exit(1);
+                return 0;
         }
         if (*endp) {
                 xsnprintf(ebuf, ebuflen,
                         "arping: %s: failed parsing <%s> as integer\n",
                         what, in);
-                exit(1);
+                return 0;
         }
         if (ret < 0) {
                 xsnprintf(ebuf, ebuflen,
                         "arping: %s: <%s> is negative\n", what, in);
-                exit(1);
+                return 0;
         }
         return CASTER(ret, "%s %s", what, in);
 #undef CASTER
