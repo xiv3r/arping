@@ -2642,7 +2642,7 @@ arping_main(int argc, char **argv)
 	{
                 // This may be redundant if pcap_set_immediate_mode() is present.
 		uint32_t on = 1;
-		if (0 < (ioctl(pcap_fileno(pcap), BIOCIMMEDIATE,
+		if (0 != (ioctl(pcap_fileno(pcap), BIOCIMMEDIATE,
 			       &on))) {
 			fprintf(stderr, "arping: ioctl(fd,BIOCIMMEDIATE, 1) "
 				"failed, continuing anyway, YMMV: %s\n",
