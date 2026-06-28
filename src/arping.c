@@ -1262,6 +1262,21 @@ update_stats(double sample)
 }
 
 /**
+ * return 1 if reply limit reached.
+ */
+static int
+stop_at_reply_limit(unsigned char* pcap_user)
+{
+        if (numrecvd < max_replies) {
+                return 0;
+        }
+        if (pcap_user) {
+                pcap_breakloop((pcap_t*)pcap_user);
+        }
+        return 1;
+}
+
+/**
  *
  */
 static double
@@ -1523,15 +1538,18 @@ pingip_send()
  * \param packet  packet data
  */
 void
-pingip_recv(unsigned char *unused, const struct pcap_pkthdr *h, const unsigned char * const packet)
+pingip_recv(unsigned char *pcap_user, const struct pcap_pkthdr *h, const unsigned char * const packet)
 {
         unsigned char pkt_srcmac[ETH_ALEN];
         const unsigned char* arpdata = NULL;
         int ethernet_header_size = LIBNET_ETH_H;
         struct libnet_arp_hdr harp;
         struct timespec arrival;
-        UNUSED(unused);
         assert(packet);
+
+        if (stop_at_reply_limit(pcap_user)) {
+                return;
+        }
 
         if (verbose > 2) {
 		printf("arping: received response for IP ping\n");
@@ -1732,9 +1750,7 @@ pingip_recv(unsigned char *unused, const struct pcap_pkthdr *h, const unsigned c
         memcpy(lastreplymac, pkt_srcmac, ETH_ALEN);
 
         numrecvd++;
-        if (numrecvd >= max_replies) {
-                sigint(0);
-        }
+        stop_at_reply_limit(pcap_user);
 }
 
 /** handle incoming packet when pinging an MAC address.
@@ -1743,7 +1759,7 @@ pingip_recv(unsigned char *unused, const struct pcap_pkthdr *h, const unsigned c
  * \param packet  packet data
  */
 void
-pingmac_recv(unsigned char* unused, const struct pcap_pkthdr *h, const uint8_t *packet)
+pingmac_recv(unsigned char* pcap_user, const struct pcap_pkthdr *h, const uint8_t *packet)
 {
         unsigned char pkt_dstmac[ETH_ALEN];
         unsigned char pkt_srcmac[ETH_ALEN];
@@ -1752,8 +1768,11 @@ pingmac_recv(unsigned char* unused, const struct pcap_pkthdr *h, const uint8_t *
         struct libnet_icmpv4_hdr hicmp;
         struct timespec arrival;
         const uint8_t* payload = NULL;
-        UNUSED(unused);
         assert(packet);
+
+        if (stop_at_reply_limit(pcap_user)) {
+                return;
+        }
 
 	if(verbose>2) {
                 printf("arping: received response for mac ping len=%u caplen=%u\n",
@@ -1944,9 +1963,7 @@ pingmac_recv(unsigned char* unused, const struct pcap_pkthdr *h, const uint8_t *
                 printf("\n");
         }
         numrecvd++;
-        if (numrecvd >= max_replies) {
-                sigint(0);
-        }
+        stop_at_reply_limit(pcap_user);
 }
 
 /**
@@ -2102,6 +2119,9 @@ ping_recv(pcap_t *pcap, uint32_t packetwait, pcap_handler func)
                        if (0 > (ret = pcap_dispatch(pcap, -1,
                                                     func,
                                                     NULL))) {
+                               if (time_to_die) {
+                                       return;
+                               }
 			       /* rest, so we don't take 100% CPU... mostly
                                   hmm... does usleep() exist everywhere? */
 			       usleep(1);
@@ -2739,11 +2759,17 @@ arping_main(int argc, char **argv)
         }
 	if (mode == PINGIP) {
 		int c;
-		for (c = 0; (maxcount < 0 || c < maxcount) && !time_to_die; c++) {
+		for (c = 0; (maxcount < 0 || c < maxcount); c++) {
+                        if (time_to_die) {
+                                break;
+                        }
                         if (c == INT_MAX) {
                                 --c;
                         }
 			pingip_send();
+                        if (max_replies != UINT_MAX && numrecvd >= max_replies) {
+                                break;
+                        }
                         const uint32_t w = wait_time(deadline, packetwait);
                         if (w == 0) {
                                 break;
@@ -2752,12 +2778,18 @@ arping_main(int argc, char **argv)
 		}
 	} else { /* PINGMAC */
 		int c;
-		for (c = 0; (maxcount < 0 || c < maxcount) && !time_to_die; c++) {
+		for (c = 0; (maxcount < 0 || c < maxcount); c++) {
+                        if (time_to_die) {
+                                break;
+                        }
                         if (c == INT_MAX) {
                                 --c;
                         }
                         pingmac_send(xrandom16(),
                                      cast_int_uint16(c & 0xffff, NULL));
+                        if (max_replies != UINT_MAX && numrecvd >= max_replies) {
+                                break;
+                        }
                         const uint32_t w = wait_time(deadline, packetwait);
                         if (w == 0) {
                                 break;
