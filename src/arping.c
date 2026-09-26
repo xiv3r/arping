@@ -1804,8 +1804,6 @@ pingip_recv(unsigned char *pcap_user, const struct pcap_pkthdr *h, const unsigne
         default:
                 fprintf(stderr, "arping: can't happen!\n");
         }
-        fflush(stdout);
-
         switch (display) {
         case QUIET:
         case DOT:
@@ -1813,6 +1811,7 @@ pingip_recv(unsigned char *pcap_user, const struct pcap_pkthdr *h, const unsigne
         default:
                 printf("\n");
         }
+        fflush(stdout);
         if (numrecvd) {
                 if (memcmp(lastreplymac,
                            pkt_srcmac, ETH_ALEN)) {
@@ -2026,7 +2025,6 @@ pingmac_recv(unsigned char* pcap_user, const struct pcap_pkthdr *h, const uint8_
                 fprintf(stderr, "arping: can't-happen-bug\n");
                 sigint(0);
         }
-        fflush(stdout);
         switch (display) {
         case QUIET:
         case DOT:
@@ -2034,6 +2032,7 @@ pingmac_recv(unsigned char* pcap_user, const struct pcap_pkthdr *h, const uint8_
         default:
                 printf("\n");
         }
+        fflush(stdout);
         numrecvd++;
         stop_at_reply_limit(pcap_user);
 }
