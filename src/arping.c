@@ -2566,7 +2566,7 @@ arping_main(int argc, char **argv)
         }
 
         /* default to own IP address when doing -d */
-        if (finddup && !parm) {
+        if (finddup && !parm && !dstip_given) {
                 dstip_given = 1;
                 do_libnet_init(ifname, 0);
                 dstip = libnet_get_ipaddr4(libnet);
