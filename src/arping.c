@@ -884,7 +884,7 @@ err:
         }
         return NULL;
 #else
-        return pcap_open_live(device, snaplen, to_ms, errbuf);
+        return pcap_open_live(device, snaplen, promisc, to_ms, errbuf);
 #endif
 }
 
