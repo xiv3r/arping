@@ -46,10 +46,10 @@ for a in $(seq 192 192); do
     for b in $(seq 168 168); do
 	for c in $(seq 0 0); do
 	    for d in $(seq 0 255); do
-		sh -c "arping -r -c 1 -T $a.$b.$c.$d $TARGET_MAC | grep -Fx $a.$b.$c.$d >/dev/null
-		if [ \$? = 0 ]; then
+		(arping -r -c 1 -T $a.$b.$c.$d "$TARGET_MAC" | grep -Fx $a.$b.$c.$d >/dev/null
+		if [ $? = 0 ]; then
 		    echo Got answer with address: $a.$b.$c.$d
-		fi" &
+		fi) &
 	    done
 	    wait
 	done
