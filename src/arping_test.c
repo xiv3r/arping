@@ -240,7 +240,7 @@ START_TEST(test_mkpacket)
 // Received uninteresting packet, should not record anything.
 START_TEST(pingip_uninteresting_packet)
 {
-        struct pcap_pkthdr pkthdr;
+        struct pcap_pkthdr pkthdr = {0};
         uint8_t* packet;
         struct libnet_arp_hdr* harp;
 
