@@ -41,6 +41,7 @@ setup_rootless() {
     ROOTLESS_PID1=""
     unshare --net sh -c 'exec sleep 1200' &
     ROOTLESS_PID1=$!
+    trap cleanup EXIT
     while [[ /proc/"${ROOTLESS_PID1}"/ns/net -ef /proc/self/ns/net ]]; do
         sleep 0.01
     done
