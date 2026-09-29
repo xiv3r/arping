@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -ueo pipefail
 ./bootstrap.sh
-./configure CFLAGS='-Wall -pedantic -Wextra'
+./configure --enable-warnings --enable-werror
 make clean
-exec make CFLAGS='-Wall -pedantic -Wextra -Werror -Warith-conversion -Wconversion -Wsign-conversion -Wfloat-conversion -Wformat-signedness'
+exec make

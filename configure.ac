@@ -255,17 +255,28 @@ AC_ARG_ENABLE(warnings,
     [
         if test "x$enableval" = xyes; then
         CHECK_COMPILER_OPTION([-Wall])
+        CHECK_COMPILER_OPTION([-pedantic])
         CHECK_COMPILER_OPTION([-Wextra])
         CHECK_COMPILER_OPTION([-Wpedantic])
         CHECK_COMPILER_OPTION([-Wstack-protector])
         CHECK_COMPILER_OPTION([-Wformat])
         CHECK_COMPILER_OPTION([-Wformat-security])
         CHECK_COMPILER_OPTION([-Wformat-y2k])
+        CHECK_COMPILER_OPTION([-Wformat-signedness])
         CHECK_COMPILER_OPTION([-Werror=format-security])
+        CHECK_COMPILER_OPTION([-Warith-conversion])
         CHECK_COMPILER_OPTION([-Wconversion])
+        CHECK_COMPILER_OPTION([-Wfloat-conversion])
         CHECK_COMPILER_OPTION([-Wsign-conversion])
         CHECK_COMPILER_OPTION([-Wimplicit-fallthrough])
         CHECK_COMPILER_OPTION([-Wtrampolines])
+        fi
+])
+AC_ARG_ENABLE(werror,
+    AS_HELP_STRING([--enable-werror], [Enable warnings as errors]),
+    [
+        if test "x$enableval" = xyes; then
+        CHECK_COMPILER_OPTION([-Werror])
         fi
 ])
 
