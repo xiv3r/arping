@@ -2193,6 +2193,10 @@ ping_recv(pcap_t *pcap, uint32_t packetwait, pcap_handler func)
                                if (time_to_die) {
                                        return;
                                }
+                               if (ret == PCAP_ERROR) {
+                                       fprintf(stderr, "arping: pcap_dispatch(): %s\n", pcap_geterr(pcap));
+                                       exit(EXIT_FAILURE);
+                               }
 			       /* rest, so we don't take 100% CPU... mostly
                                   hmm... does usleep() exist everywhere? */
 			       usleep(1);
