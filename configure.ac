@@ -233,6 +233,7 @@ fi
 AC_ARG_ENABLE(hardened,
     AS_HELP_STRING([--enable-hardened], [Enable security build options]),
     [
+        if test "x$enableval" = xyes; then
         CHECK_COMPILER_OPTION([-fstack-clash-protection])
         CHECK_COMPILER_OPTION([-fstack-protector-strong])
         CHECK_COMPILER_OPTION([-mbranch-protection=standard])
@@ -247,10 +248,12 @@ AC_ARG_ENABLE(hardened,
         CHECK_COMPILER_OPTION([-fstack-protector-all])
         CHECK_COMPILER_OPTION([--param ssp-buffer-size=1])
         CHECK_COMPILER_OPTION([-U _FORTIFY_SOURCE -D_FORTIFY_SOURCE=3])
+        fi
 ])
 AC_ARG_ENABLE(warnings,
     AS_HELP_STRING([--enable-warnings], [Enable build warnings]),
     [
+        if test "x$enableval" = xyes; then
         CHECK_COMPILER_OPTION([-Wall])
         CHECK_COMPILER_OPTION([-Wextra])
         CHECK_COMPILER_OPTION([-Wpedantic])
@@ -263,6 +266,7 @@ AC_ARG_ENABLE(warnings,
         CHECK_COMPILER_OPTION([-Wsign-conversion])
         CHECK_COMPILER_OPTION([-Wimplicit-fallthrough])
         CHECK_COMPILER_OPTION([-Wtrampolines])
+        fi
 ])
 
 AC_DEFUN([CHECK_SECCOMP_SYSCALL], [
